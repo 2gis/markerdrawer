@@ -1,0 +1,55 @@
+{
+  "extends": [
+    "tslint:recommended"
+  ],
+  "rulesDirectory": [
+    "node_modules/tslint-eslint-rules/dist/rules"
+  ],
+  "rules": {
+    "no-null-keyword": true,
+    "ordered-imports": false,
+    "only-arrow-functions": [true, "allow-declarations", "allow-named-functions"],
+    "object-literal-key-quotes": [true, "consistent"],
+    "quotemark": [
+      true,
+      "single"
+    ],
+    "interface-name": false,
+    "no-namespace": "allow-decalarations",
+    "object-literal-sort-keys": false,
+    "prefer-for-of": false,
+    "trailing-comma": [
+      false,
+      {
+        "singleline": "never",
+        "multiline": "always"
+      }
+    ],
+    "no-string-literal": false,
+    "no-var-requires": false,
+    "object-curly-spacing": [
+      true,
+      "always"
+    ],
+    "array-bracket-spacing": [
+      true,
+      "never"
+    ],
+    "no-irregular-whitespace": "error",
+    "valid-typeof": 2,
+    "no-multi-spaces": true,
+    "block-spacing": "always",
+    "brace-style": [
+      2,
+      "1tbs"
+    ],
+    "variable-name": [
+      true,
+      "ban-keywords",
+      "check-format",
+      "allow-pascal-case",
+      "allow-leading-underscore"                
+    ],
+    "no-constant-condition": true
+  }
+}

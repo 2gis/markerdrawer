@@ -2,16 +2,21 @@
   "name": "markerdrawer",
   "version": "0.0.1",
   "description": "Library for fast drawing a huge amount of markers",
+  "author": {
+    "name": "Mstislav Zhivodkov",
+    "email": "stevemyz@gmail.com",
+    "url" : "https://trufi.github.io/"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:Trufi/MarkerDrawer.git"
+  },
   "main": "dist/markerdrawer.js",
   "scripts": {
     "start": "webpack-dev-server",
     "build": "webpack --config webpack-dist.config.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:Trufi/MarkerDrawer.git"
-  },
-  "license": "MIT",
   "devDependencies": {
     "@types/es6-promise": "0.0.32",
     "@types/leaflet": "^1.0.50",

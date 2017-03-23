@@ -8,16 +8,19 @@
       ]
     },
     "target": "es5",
+    "module": "commonjs",
     "sourceMap": true,
     "noImplicitAny": false,
     "strictNullChecks": true,
     "noEmitHelpers": true,
     "importHelpers": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "declaration": true
   },
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist"
   ],
   "compileOnSave": false
 }

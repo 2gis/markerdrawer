@@ -9,7 +9,7 @@ L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-const center = [54.980156831455,82.897440725094];
+const center = [54.980156831455, 82.897440725094];
 const markersData: Marker[] = [];
 for (let i = 0; i < 5000; i++) {
     markersData.push({
@@ -34,10 +34,11 @@ const atlas = new Atlas([{
 const markerDrawer = new MarkerDrawer(markersData, atlas);
 
 markerDrawer.on('click', (ev: any) => {
+    // tslint:disable-next-line
     console.log('click', ev);
 
-    const arg = ev.markers.map((index) => ({ index, icon: 1}));
-    markerDrawer.setMarkersIcon(arg)
+    const arg = ev.markers.map((index) => ({ index, icon: 1 }));
+    markerDrawer.setMarkersIcon(arg);
 });
 
 markerDrawer.addTo(map);

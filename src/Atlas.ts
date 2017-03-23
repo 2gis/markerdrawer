@@ -1,6 +1,22 @@
 import * as pack from 'bin-pack';
 
 /**
+ * Icon with options for atlas
+ */
+export type Icon = {
+    image: HTMLImageElement;
+    anchor?: vec2; // [anchor=[0.5, 0.5]]
+    size?: vec2; // [size=[image.width, image.height]] Size in a final atlas image
+    // Может отличаться от исходного размера изображения.
+};
+
+export type Sprite = {
+    position: vec2; // Position of icon in the image of atlas
+    size: vec2; // Size of icon in the atlas
+    anchor: vec2;
+};
+
+/**
  * The Atlas creates one image from a set of icons.
  * After creating holds information about positions of each icon in the image.
  */
@@ -86,19 +102,3 @@ export class Atlas {
         });
     }
 }
-
-/**
- * Icon with options for atlas
- */
-type Icon = {
-    image: HTMLImageElement;
-    anchor?: vec2; // [anchor=[0.5, 0.5]]
-    size?: vec2; // [size=[image.width, image.height]] Size in a final atlas image
-    // Может отличаться от исходного размера изображения.
-};
-
-type Sprite = {
-    position: vec2; // Position of icon in the image of atlas
-    size: vec2; // Size of icon in the atlas
-    anchor: vec2;
-};

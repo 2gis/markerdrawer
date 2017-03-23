@@ -1,6 +1,6 @@
 type vec2 = [number, number];
 
-type latLng = vec2;
+type latLng = [number, number];
 
 interface Marker {
   latLng: latLng;

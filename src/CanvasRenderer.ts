@@ -31,7 +31,7 @@ export class CanvasRenderer implements IRenderer {
 
         this.container = document.createElement('canvas');
 
-        // We do not consider the case when 2d context is not exist 
+        // We do not consider the case when 2d context is not exist
         this._ctx = this.container.getContext('2d') as CanvasRenderingContext2D;
 
         this._tree = rbush();

@@ -13,6 +13,7 @@
     "url": "git@github.com:Trufi/MarkerDrawer.git"
   },
   "main": "dist/markerdrawer.js",
+  "typings": "dist/src/index",
   "scripts": {
     "start": "webpack-dev-server",
     "build": "webpack --config webpack-dist.config.js"

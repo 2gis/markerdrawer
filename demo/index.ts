@@ -13,11 +13,14 @@ L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
 }).addTo(map);
 
-const center = [54.980156831455, 82.897440725094];
+const centerLngLat = [82.897440725094, 54.980156831455];
 const markersData: Marker[] = [];
 for (let i = 0; i < 5000; i++) {
     markersData.push({
-        latLng: [center[0] + (Math.random() - 0.5) * 0.1, center[1] + (Math.random() - 0.5) * 0.25],
+        position: [
+            centerLngLat[0] + (Math.random() - 0.5) * 0.25,
+            centerLngLat[1] + (Math.random() - 0.5) * 0.1,
+        ],
     });
 }
 

@@ -100,7 +100,7 @@ export class CanvasRenderer implements IRenderer {
             const marker = markers[i];
             const data = markersData[i];
 
-            const latLng = L.latLng(marker.latLng[0], marker.latLng[1]);
+            const latLng = L.latLng(marker.position[1], marker.position[0]);
             const layerPoint = map.project(latLng, zoom);
             const containerPoint: Vec2 = [
                 layerPoint.x - origin.x - pixelOffset.x,

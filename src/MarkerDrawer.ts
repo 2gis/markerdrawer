@@ -1,5 +1,6 @@
 import { Atlas } from './Atlas';
 import { CanvasRenderer } from './CanvasRenderer';
+import { Marker } from './types';
 
 /**
  * This class helps to draw fast a huge amount of markers
@@ -57,7 +58,7 @@ export class MarkerDrawer extends L.Layer {
             viewreset: this._update,
             moveend: this._update,
             zoomstart: this._onZoomStart,
-            click: this._onClick
+            click: this._onClick,
         };
     }
 

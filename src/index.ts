@@ -1,4 +1,7 @@
-import { MarkerDrawer } from '../src/MarkerDrawer';
-import { Atlas } from '../src/Atlas';
-
-export { MarkerDrawer, Atlas };
+export { MarkerDrawer } from '../src/MarkerDrawer';
+export {
+  Atlas,
+  Icon,
+  Sprite,
+} from '../src/Atlas';
+export { Marker } from './types';

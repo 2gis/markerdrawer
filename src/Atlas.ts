@@ -1,19 +1,20 @@
 import * as pack from 'bin-pack';
+import { Vec2 } from './types';
 
 /**
  * Icon with options for atlas
  */
 export type Icon = {
     image: HTMLImageElement;
-    anchor?: vec2; // [anchor=[0.5, 0.5]]
-    size?: vec2; // [size=[image.width, image.height]] Size in a final atlas image
+    anchor?: Vec2; // [anchor=[0.5, 0.5]]
+    size?: Vec2; // [size=[image.width, image.height]] Size in a final atlas image
     // Может отличаться от исходного размера изображения.
 };
 
 export type Sprite = {
-    position: vec2; // Position of icon in the image of atlas
-    size: vec2; // Size of icon in the atlas
-    anchor: vec2;
+    position: Vec2; // Position of icon in the image of atlas
+    size: Vec2; // Size of icon in the atlas
+    anchor: Vec2;
 };
 
 /**
@@ -22,7 +23,7 @@ export type Sprite = {
  */
 export class Atlas {
     public image?: HTMLCanvasElement; // Image of icons
-    public size: vec2; // Size of image
+    public size: Vec2; // Size of image
     public sprites: Sprite[]; // Information about each icon
 
     private _promise: Promise<any>;
@@ -78,7 +79,7 @@ export class Atlas {
         this.sprites = arr.map((icon) => ({
             position: [icon.x + margin, icon.y + margin],
             size: icon.size,
-            anchor: icon.anchor
+            anchor: icon.anchor,
         }));
 
         const canvas = this.image = document.createElement('canvas');
@@ -97,7 +98,7 @@ export class Atlas {
         arr.forEach((icon) => {
             ctx.drawImage(icon.image,
                 0, 0, icon.imageSize[0], icon.imageSize[1],
-                icon.x + margin, icon.y + margin, icon.size[0], icon.size[1]
+                icon.x + margin, icon.y + margin, icon.size[0], icon.size[1],
             );
         });
     }

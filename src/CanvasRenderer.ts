@@ -1,5 +1,10 @@
 import { Atlas } from './Atlas';
 import * as rbush from 'rbush';
+import {
+    Marker,
+    IRenderer,
+    Vec2,
+} from './types';
 
 interface MarkerData {
     index: number;
@@ -65,7 +70,7 @@ export class CanvasRenderer implements IRenderer {
             minX: point.x,
             minY: point.y,
             maxX: point.x,
-            maxY: point.y
+            maxY: point.y,
         });
 
         return res.map((d) => d.index);
@@ -97,9 +102,9 @@ export class CanvasRenderer implements IRenderer {
 
             const latLng = L.latLng(marker.latLng[0], marker.latLng[1]);
             const layerPoint = map.project(latLng, zoom);
-            const containerPoint: vec2 = [
+            const containerPoint: Vec2 = [
                 layerPoint.x - origin.x - pixelOffset.x,
-                layerPoint.y - origin.y - pixelOffset.y
+                layerPoint.y - origin.y - pixelOffset.y,
             ];
 
             if (containerPoint[0] < 0 || containerPoint[0] > size[0] ||
@@ -110,9 +115,9 @@ export class CanvasRenderer implements IRenderer {
 
             const sprite = atlas.sprites[marker.icon || 0];
 
-            const offset: vec2 = [
+            const offset: Vec2 = [
                 Math.floor(containerPoint[0] - sprite.size[0] * sprite.anchor[0]),
-                Math.floor(containerPoint[1] - sprite.size[1] * sprite.anchor[1])
+                Math.floor(containerPoint[1] - sprite.size[1] * sprite.anchor[1]),
             ];
 
             // Prepare for rbush
@@ -132,7 +137,7 @@ export class CanvasRenderer implements IRenderer {
                 offset[0],
                 offset[1],
                 sprite.size[0],
-                sprite.size[1]
+                sprite.size[1],
             );
         }
     }

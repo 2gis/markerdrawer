@@ -12,12 +12,12 @@ export class MarkerDrawer extends L.Layer {
     private _renderer: CanvasRenderer;
     private _pane: HTMLElement;
 
-    constructor(markers: Marker[], atlas: Atlas) {
+    constructor(markers: Marker[], atlas: Atlas, { debugDrawing = false }: { debugDrawing?: boolean } = {}) {
         super();
 
         this._markers = markers;
         this._atlas = atlas;
-        this._renderer = new CanvasRenderer(this._markers, this._atlas);
+        this._renderer = new CanvasRenderer(this._markers, this._atlas, debugDrawing);
     }
 
     public addTo(map: L.Map) {
@@ -33,6 +33,8 @@ export class MarkerDrawer extends L.Layer {
 
         if (!this._map.getPane('markerbatch')) {
             this._pane = this._map.createPane('markerbatch');
+        } else {
+            this._pane = this._map.getPane('markerbatch');
         }
 
         this._renderer.onAddToMap(this._map);
@@ -53,6 +55,13 @@ export class MarkerDrawer extends L.Layer {
         return this;
     }
 
+    public onRemove() {
+        this._pane.removeChild(this._renderer.container);
+        this._renderer.onRemoveFromMap();
+
+        return this;
+    }
+
     public getEvents() {
         return {
             viewreset: this._update,
@@ -62,14 +71,14 @@ export class MarkerDrawer extends L.Layer {
         };
     }
 
-    public setMarkerIcon(index: number, icon: number) {
-        this._markers[index].icon = icon;
+    public setMarkerIcon(index: number, iconIndex: number) {
+        this._markers[index].iconIndex = iconIndex;
         this._renderer.update();
     }
 
-    public setMarkersIcon(array: Array<{index: number, icon: number}>) {
-        array.forEach(({ index, icon }) => {
-            this._markers[index].icon = icon;
+    public setMarkersIcon(array: Array<{index: number, iconIndex: number}>) {
+        array.forEach(({ index, iconIndex }) => {
+            this._markers[index].iconIndex = iconIndex;
         });
         this._renderer.update();
     }

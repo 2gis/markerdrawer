@@ -44,7 +44,7 @@ markerDrawer.on('click', (ev: any) => {
     // tslint:disable-next-line
     console.log('click', ev);
 
-    const arg = ev.markers.map((index) => ({ index, icon: 1 }));
+    const arg = ev.markers.map((index) => ({ index, iconIndex: 1 }));
     markerDrawer.setMarkersIcon(arg);
 });
 

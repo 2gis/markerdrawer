@@ -22,14 +22,16 @@ export class CanvasRenderer implements IRenderer {
     private _markersData: MarkerData[];
     private _atlas: Atlas;
     private _ctx: CanvasRenderingContext2D;
-    private _map: L.Map;
+    private _map: L.Map | undefined;
     private _size: L.Point;
     private _pixelOffset: L.Point;
     private _tree: any;
+    private _debugDrawing: boolean;
 
-    constructor(markers: Marker[], atlas: Atlas) {
+    constructor(markers: Marker[], atlas: Atlas, debugDrawing: boolean) {
         this._markers = markers;
         this._atlas = atlas;
+        this._debugDrawing = debugDrawing;
 
         // Set ordered indices
         this._markersData = this._markers.map((_, i) => ({ index: i }));
@@ -51,12 +53,20 @@ export class CanvasRenderer implements IRenderer {
         this.container.style.height = size.y + 'px';
     }
 
+    public onRemoveFromMap() {
+        this._map = undefined;
+    }
+
     public clear() {
         this._ctx.clearRect(0, 0, this._size.x, this._size.y);
         this._tree.clear();
     }
 
     public update() {
+        if (!this._map) {
+            return;
+        }
+
         this._pixelOffset = this._map.containerPointToLayerPoint([0, 0]);
 
         L.DomUtil.setPosition(this.container, this._pixelOffset);
@@ -83,6 +93,7 @@ export class CanvasRenderer implements IRenderer {
         const ctx = this._ctx;
         const map = this._map;
         const pixelOffset = this._pixelOffset;
+        const debugDrawing = this._debugDrawing;
 
         if (!map || !atlas.image) {
             return;
@@ -113,7 +124,7 @@ export class CanvasRenderer implements IRenderer {
                 continue;
             }
 
-            const sprite = atlas.sprites[marker.icon || 0];
+            const sprite = atlas.sprites[marker.iconIndex || 0];
 
             const offset: Vec2 = [
                 Math.floor(containerPoint[0] - sprite.size[0] * sprite.anchor[0]),
@@ -139,11 +150,42 @@ export class CanvasRenderer implements IRenderer {
                 sprite.size[0],
                 sprite.size[1],
             );
+
+            if (debugDrawing) {
+                this._debugDraw(marker, offset, sprite.size);
+            }
         }
     }
 
     private _updateTree() {
         this._tree.clear();
         this._tree.load(this._markersData.filter((d) => d.inBounds));
+    }
+
+    private _debugDraw(marker: Marker, offset: Vec2, size: Vec2) {
+        const ctx = this._ctx;
+        const colors = [
+            '#000000',
+            '#ff0000',
+            '#00ff00',
+        ];
+        const drawingOffsets = marker.drawingOffsets;
+        if (!drawingOffsets) {
+            return;
+        }
+
+        for (let j = 0; j < drawingOffsets.length; j++) {
+            const drawingOffset = drawingOffsets[j];
+            ctx.beginPath();
+            ctx.strokeStyle = colors[j];
+            ctx.rect(
+                offset[0] - drawingOffset,
+                offset[1] - drawingOffset,
+                size[0] + drawingOffset * 2,
+                size[1] + drawingOffset * 2,
+            );
+
+            ctx.stroke();
+        }
     }
 }

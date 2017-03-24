@@ -1,10 +1,11 @@
 export type Vec2 = [number, number];
 
-export type lngLat = [number, number];
+export type LngLat = [number, number];
 
 export interface Marker {
-    position: lngLat;
-    icon?: number; // Индекс иконки маркера в атласе
+    position: LngLat;
+    iconIndex?: number; // Индекс иконки маркера в атласе
+    drawingOffsets?: number[];
 };
 
 export interface IRenderer {

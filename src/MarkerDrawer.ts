@@ -2,6 +2,10 @@ import { Atlas } from './Atlas';
 import { CanvasRenderer } from './CanvasRenderer';
 import { Marker } from './types';
 
+export interface MarkerDrawerOptions {
+    debugDrawing?: boolean;
+}
+
 /**
  * This class helps to draw fast a huge amount of markers
  */
@@ -12,12 +16,12 @@ export class MarkerDrawer extends L.Layer {
     private _renderer: CanvasRenderer;
     private _pane: HTMLElement;
 
-    constructor(markers: Marker[], atlas: Atlas, { debugDrawing = false }: { debugDrawing?: boolean } = {}) {
+    constructor(markers: Marker[], atlas: Atlas, options: MarkerDrawerOptions = {}) {
         super();
 
         this._markers = markers;
         this._atlas = atlas;
-        this._renderer = new CanvasRenderer(this._markers, this._atlas, debugDrawing);
+        this._renderer = new CanvasRenderer(this._markers, this._atlas, options.debugDrawing || false);
     }
 
     public addTo(map: L.Map) {

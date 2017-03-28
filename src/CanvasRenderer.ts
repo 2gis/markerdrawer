@@ -6,6 +6,8 @@ import {
     Vec2,
 } from './types';
 
+import { lngLatToZoomPoint } from './utils';
+
 interface MarkerData {
     index: number;
     inBounds?: boolean;
@@ -112,7 +114,6 @@ export class CanvasRenderer implements IRenderer {
         const atlas = this._atlas;
         const ctx = this._ctx;
         const map = this._map;
-        const pixelOffset = this._pixelOffset;
         const debugDrawing = this._debugDrawing;
         const pixelRatio = this._pixelRatio;
 
@@ -121,12 +122,14 @@ export class CanvasRenderer implements IRenderer {
         }
 
         const zoom = map.getZoom();
+        const center = map.getCenter();
 
         const size = this._size;
 
         ctx.clearRect(0, 0, size[0] * pixelRatio, size[1] * pixelRatio);
 
-        const origin = map.getPixelOrigin();
+        const pixelCenter = lngLatToZoomPoint([center.lng, center.lat], zoom);
+        const origin: Vec2 = [pixelCenter[0] - size[0] / 2, pixelCenter[1] - size[1] / 2];
 
         for (let i = 0; i < markers.length; i++) {
             const marker = markers[i];
@@ -137,11 +140,10 @@ export class CanvasRenderer implements IRenderer {
                 continue;
             }
 
-            const latLng = L.latLng(marker.position[1], marker.position[0]);
-            const layerPoint = map.project(latLng, zoom);
+            const layerPoint = lngLatToZoomPoint(marker.position, zoom);
             const containerPoint: Vec2 = [
-                layerPoint.x - origin.x - pixelOffset.x,
-                layerPoint.y - origin.y - pixelOffset.y,
+                layerPoint[0] - origin[0],
+                layerPoint[1] - origin[1],
             ];
 
             const offset: Vec2 = [

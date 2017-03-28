@@ -13,7 +13,7 @@ L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
 }).addTo(map);
 
-const centerLngLat = [82.897440725094, 54.980156831455];
+const centerLngLat: [number, number] = [82.897440725094, 54.980156831455];
 const markersData: Marker[] = [];
 for (let i = 0; i < 5000; i++) {
     markersData.push({
@@ -23,6 +23,9 @@ for (let i = 0; i < 5000; i++) {
         ],
     });
 }
+markersData.push({
+    position: centerLngLat,
+});
 
 const pin = new Image();
 pin.src = 'demo/marker.png';

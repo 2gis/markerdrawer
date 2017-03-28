@@ -23,15 +23,17 @@ export class CanvasRenderer implements IRenderer {
     private _atlas: Atlas;
     private _ctx: CanvasRenderingContext2D;
     private _map: L.Map | undefined;
-    private _size: L.Point;
+    private _size: Vec2;
     private _pixelOffset: L.Point;
     private _tree: any;
     private _debugDrawing: boolean;
+    private _offsetBuffer: number;
 
-    constructor(markers: Marker[], atlas: Atlas, debugDrawing: boolean) {
+    constructor(markers: Marker[], atlas: Atlas, debugDrawing: boolean, offsetBuffer: number) {
         this._markers = markers;
         this._atlas = atlas;
         this._debugDrawing = debugDrawing;
+        this._offsetBuffer = offsetBuffer;
 
         // Set ordered indices
         this._markersData = this._markers.map((_, i) => ({ index: i }));
@@ -46,11 +48,15 @@ export class CanvasRenderer implements IRenderer {
 
     public onAddToMap(map: L.Map) {
         this._map = map;
-        const size = this._size = this._map.getSize();
-        this.container.width = size.x;
-        this.container.height = size.y;
-        this.container.style.width = size.x + 'px';
-        this.container.style.height = size.y + 'px';
+        const mapSize = map.getSize();
+        const size = this._size = [
+            mapSize.x * (1 + this._offsetBuffer * 2),
+            mapSize.y * (1 + this._offsetBuffer * 2),
+        ];
+        this.container.width = size[0];
+        this.container.height = size[1];
+        this.container.style.width = size[0] + 'px';
+        this.container.style.height = size[1] + 'px';
     }
 
     public onRemoveFromMap() {
@@ -58,7 +64,7 @@ export class CanvasRenderer implements IRenderer {
     }
 
     public clear() {
-        this._ctx.clearRect(0, 0, this._size.x, this._size.y);
+        this._ctx.clearRect(0, 0, this._size[0], this._size[1]);
         this._tree.clear();
     }
 
@@ -67,7 +73,10 @@ export class CanvasRenderer implements IRenderer {
             return;
         }
 
-        this._pixelOffset = this._map.containerPointToLayerPoint([0, 0]);
+        this._pixelOffset = this._map.containerPointToLayerPoint([
+            -this._offsetBuffer * this._size[0] / 2,
+            -this._offsetBuffer * this._size[1] / 2,
+        ]);
 
         L.DomUtil.setPosition(this.container, this._pixelOffset);
 
@@ -103,7 +112,7 @@ export class CanvasRenderer implements IRenderer {
 
         const size = this._size;
 
-        ctx.clearRect(0, 0, size.x, size.y);
+        ctx.clearRect(0, 0, size[0], size[1]);
 
         const origin = map.getPixelOrigin();
 
@@ -118,18 +127,23 @@ export class CanvasRenderer implements IRenderer {
                 layerPoint.y - origin.y - pixelOffset.y,
             ];
 
-            if (containerPoint[0] < 0 || containerPoint[0] > size[0] ||
-                containerPoint[1] < 0 || containerPoint[1] > size[1]) {
-                data.inBounds = false;
+            const sprite = atlas.sprites[marker.iconIndex || 0];
+            if (!sprite) {
                 continue;
             }
 
-            const sprite = atlas.sprites[marker.iconIndex || 0];
-
             const offset: Vec2 = [
-                Math.floor(containerPoint[0] - sprite.size[0] * sprite.anchor[0]),
-                Math.floor(containerPoint[1] - sprite.size[1] * sprite.anchor[1]),
+                containerPoint[0] - sprite.size[0] * sprite.anchor[0],
+                containerPoint[1] - sprite.size[1] * sprite.anchor[1],
             ];
+
+            const spriteSize = sprite.size;
+
+            if (offset[0] < 0 || offset[0] + spriteSize[0] > size[0] ||
+                offset[1] < 0 || offset[1] + spriteSize[1] > size[1]) {
+                data.inBounds = false;
+                continue;
+            }
 
             // Prepare for rbush
             data.inBounds = true;
@@ -142,13 +156,13 @@ export class CanvasRenderer implements IRenderer {
                 atlas.image,
                 sprite.position[0],
                 sprite.position[1],
-                sprite.size[0],
-                sprite.size[1],
+                spriteSize[0],
+                spriteSize[1],
 
                 offset[0],
                 offset[1],
-                sprite.size[0],
-                sprite.size[1],
+                spriteSize[0],
+                spriteSize[1],
             );
 
             if (debugDrawing) {

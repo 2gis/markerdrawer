@@ -38,7 +38,9 @@ const atlas = new Atlas([{
     anchor: [0.5, 1],
 }]);
 
-const markerDrawer = new MarkerDrawer(markersData, atlas);
+const markerDrawer = new MarkerDrawer(markersData, atlas, {
+    offsetBuffer: 0.5,
+});
 
 markerDrawer.on('click', (ev: any) => {
     // tslint:disable-next-line

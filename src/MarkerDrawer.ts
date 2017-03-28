@@ -4,6 +4,7 @@ import { Marker } from './types';
 
 export interface MarkerDrawerOptions {
     debugDrawing?: boolean;
+    offsetBuffer?: number;
 }
 
 /**
@@ -21,7 +22,12 @@ export class MarkerDrawer extends L.Layer {
 
         this._markers = markers;
         this._atlas = atlas;
-        this._renderer = new CanvasRenderer(this._markers, this._atlas, options.debugDrawing || false);
+        this._renderer = new CanvasRenderer(
+            this._markers,
+            this._atlas,
+            options.debugDrawing || false,
+            options.offsetBuffer !== undefined ? options.offsetBuffer : 0.5,
+        );
     }
 
     public addTo(map: L.Map) {

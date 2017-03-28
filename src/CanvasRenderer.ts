@@ -24,6 +24,7 @@ export class CanvasRenderer implements IRenderer {
     private _ctx: CanvasRenderingContext2D;
     private _map: L.Map | undefined;
     private _size: Vec2;
+    private _pixelRatio: number;
     private _pixelOffset: L.Point;
     private _tree: any;
     private _debugDrawing: boolean;
@@ -50,6 +51,8 @@ export class CanvasRenderer implements IRenderer {
     public onAddToMap(map: L.Map) {
         this._map = map;
         const mapSize = map.getSize();
+        this._pixelRatio = window.devicePixelRatio;
+
         this._bufferOffset = [
             mapSize.x * this._bufferFactor,
             mapSize.y * this._bufferFactor,
@@ -59,8 +62,8 @@ export class CanvasRenderer implements IRenderer {
             mapSize.y + this._bufferOffset[1] * 2,
         ];
 
-        this.container.width = size[0];
-        this.container.height = size[1];
+        this.container.width = size[0] * this._pixelRatio;
+        this.container.height = size[1] * this._pixelRatio;
         this.container.style.width = size[0] + 'px';
         this.container.style.height = size[1] + 'px';
     }
@@ -70,7 +73,7 @@ export class CanvasRenderer implements IRenderer {
     }
 
     public clear() {
-        this._ctx.clearRect(0, 0, this._size[0], this._size[1]);
+        this._ctx.clearRect(0, 0, this._size[0] * this._pixelRatio, this._size[1] * this._pixelRatio);
         this._tree.clear();
     }
 
@@ -111,6 +114,7 @@ export class CanvasRenderer implements IRenderer {
         const map = this._map;
         const pixelOffset = this._pixelOffset;
         const debugDrawing = this._debugDrawing;
+        const pixelRatio = this._pixelRatio;
 
         if (!map || !atlas.image) {
             return;
@@ -120,7 +124,7 @@ export class CanvasRenderer implements IRenderer {
 
         const size = this._size;
 
-        ctx.clearRect(0, 0, size[0], size[1]);
+        ctx.clearRect(0, 0, size[0] * pixelRatio, size[1] * pixelRatio);
 
         const origin = map.getPixelOrigin();
 
@@ -145,10 +149,8 @@ export class CanvasRenderer implements IRenderer {
                 containerPoint[1] - sprite.size[1] * sprite.anchor[1],
             ];
 
-            const spriteSize = sprite.size;
-
-            if (offset[0] < 0 || offset[0] + spriteSize[0] > size[0] ||
-                offset[1] < 0 || offset[1] + spriteSize[1] > size[1]) {
+            if (offset[0] < 0 || offset[0] + sprite.size[0] > size[0] ||
+                offset[1] < 0 || offset[1] + sprite.size[1] > size[1]) {
                 data.inBounds = false;
                 continue;
             }
@@ -164,13 +166,13 @@ export class CanvasRenderer implements IRenderer {
                 atlas.image,
                 sprite.position[0],
                 sprite.position[1],
-                spriteSize[0],
-                spriteSize[1],
+                sprite.size[0],
+                sprite.size[1],
 
-                offset[0],
-                offset[1],
-                spriteSize[0],
-                spriteSize[1],
+                offset[0] * pixelRatio,
+                offset[1] * pixelRatio,
+                sprite.size[0] * pixelRatio,
+                sprite.size[1] * pixelRatio,
             );
 
             if (debugDrawing) {
@@ -186,6 +188,7 @@ export class CanvasRenderer implements IRenderer {
 
     private _debugDraw(marker: Marker, offset: Vec2, size: Vec2) {
         const ctx = this._ctx;
+        const pixelRatio = this._pixelRatio;
         const colors = [
             '#000000',
             '#ff0000',
@@ -201,10 +204,10 @@ export class CanvasRenderer implements IRenderer {
             ctx.beginPath();
             ctx.strokeStyle = colors[j];
             ctx.rect(
-                offset[0] - drawingOffset,
-                offset[1] - drawingOffset,
-                size[0] + drawingOffset * 2,
-                size[1] + drawingOffset * 2,
+                (offset[0] - drawingOffset) * pixelRatio,
+                (offset[1] - drawingOffset) * pixelRatio,
+                (size[0] + drawingOffset * 2) * pixelRatio,
+                (size[1] + drawingOffset * 2) * pixelRatio,
             );
 
             ctx.stroke();

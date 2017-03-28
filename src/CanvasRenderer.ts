@@ -162,6 +162,11 @@ export class CanvasRenderer implements IRenderer {
             data.maxX = offset[0] + sprite.size[0];
             data.maxY = offset[1] + sprite.size[1];
 
+            const realOffset: Vec2 = [
+                Math.round(containerPoint[0] * pixelRatio - sprite.size[0] * sprite.anchor[0]),
+                Math.round(containerPoint[1] * pixelRatio - sprite.size[1] * sprite.anchor[1]),
+            ];
+
             ctx.drawImage(
                 atlas.image,
                 sprite.position[0],
@@ -169,14 +174,14 @@ export class CanvasRenderer implements IRenderer {
                 sprite.size[0],
                 sprite.size[1],
 
-                offset[0] * pixelRatio,
-                offset[1] * pixelRatio,
-                sprite.size[0] * pixelRatio,
-                sprite.size[1] * pixelRatio,
+                realOffset[0],
+                realOffset[1],
+                sprite.size[0],
+                sprite.size[1],
             );
 
             if (debugDrawing) {
-                this._debugDraw(marker, offset, sprite.size);
+                this._debugDraw(marker, realOffset, sprite.size);
             }
         }
     }
@@ -188,7 +193,6 @@ export class CanvasRenderer implements IRenderer {
 
     private _debugDraw(marker: Marker, offset: Vec2, size: Vec2) {
         const ctx = this._ctx;
-        const pixelRatio = this._pixelRatio;
         const colors = [
             '#000000',
             '#ff0000',
@@ -204,10 +208,10 @@ export class CanvasRenderer implements IRenderer {
             ctx.beginPath();
             ctx.strokeStyle = colors[j];
             ctx.rect(
-                (offset[0] - drawingOffset) * pixelRatio,
-                (offset[1] - drawingOffset) * pixelRatio,
-                (size[0] + drawingOffset * 2) * pixelRatio,
-                (size[1] + drawingOffset * 2) * pixelRatio,
+                offset[0] - drawingOffset,
+                offset[1] - drawingOffset,
+                size[0] + drawingOffset * 2,
+                size[1] + drawingOffset * 2,
             );
 
             ctx.stroke();

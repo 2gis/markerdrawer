@@ -27,13 +27,14 @@ export class CanvasRenderer implements IRenderer {
     private _pixelOffset: L.Point;
     private _tree: any;
     private _debugDrawing: boolean;
-    private _offsetBuffer: number;
+    private _bufferFactor: number;
+    private _bufferOffset: Vec2;
 
-    constructor(markers: Marker[], atlas: Atlas, debugDrawing: boolean, offsetBuffer: number) {
+    constructor(markers: Marker[], atlas: Atlas, debugDrawing: boolean, bufferFactor: number) {
         this._markers = markers;
         this._atlas = atlas;
         this._debugDrawing = debugDrawing;
-        this._offsetBuffer = offsetBuffer;
+        this._bufferFactor = bufferFactor;
 
         // Set ordered indices
         this._markersData = this._markers.map((_, i) => ({ index: i }));
@@ -49,10 +50,15 @@ export class CanvasRenderer implements IRenderer {
     public onAddToMap(map: L.Map) {
         this._map = map;
         const mapSize = map.getSize();
-        const size = this._size = [
-            mapSize.x * (1 + this._offsetBuffer * 2),
-            mapSize.y * (1 + this._offsetBuffer * 2),
+        this._bufferOffset = [
+            mapSize.x * this._bufferFactor,
+            mapSize.y * this._bufferFactor,
         ];
+        const size = this._size = [
+            mapSize.x + this._bufferOffset[0] * 2,
+            mapSize.y + this._bufferOffset[1] * 2,
+        ];
+
         this.container.width = size[0];
         this.container.height = size[1];
         this.container.style.width = size[0] + 'px';
@@ -74,8 +80,8 @@ export class CanvasRenderer implements IRenderer {
         }
 
         this._pixelOffset = this._map.containerPointToLayerPoint([
-            -this._offsetBuffer * this._size[0] / 2,
-            -this._offsetBuffer * this._size[1] / 2,
+            -this._bufferOffset[0],
+            -this._bufferOffset[1],
         ]);
 
         L.DomUtil.setPosition(this.container, this._pixelOffset);
@@ -85,11 +91,13 @@ export class CanvasRenderer implements IRenderer {
     }
 
     public search(point: L.Point) {
+        const x = point.x + this._bufferOffset[0];
+        const y = point.y + this._bufferOffset[1];
         const res: MarkerData[] = this._tree.search({
-            minX: point.x,
-            minY: point.y,
-            maxX: point.x,
-            maxY: point.y,
+            minX: x,
+            minY: y,
+            maxX: x,
+            maxY: y,
         });
 
         return res.map((d) => d.index);

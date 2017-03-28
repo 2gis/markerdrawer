@@ -39,7 +39,7 @@ const atlas = new Atlas([{
 }]);
 
 const markerDrawer = new MarkerDrawer(markersData, atlas, {
-    offsetBuffer: 0.5,
+    bufferFactor: 0.5,
 });
 
 markerDrawer.on('click', (ev: any) => {

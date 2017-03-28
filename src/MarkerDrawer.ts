@@ -4,7 +4,7 @@ import { Marker } from './types';
 
 export interface MarkerDrawerOptions {
     debugDrawing?: boolean;
-    offsetBuffer?: number;
+    bufferFactor?: number;
 }
 
 /**
@@ -26,7 +26,7 @@ export class MarkerDrawer extends L.Layer {
             this._markers,
             this._atlas,
             options.debugDrawing || false,
-            options.offsetBuffer !== undefined ? options.offsetBuffer : 0.5,
+            options.bufferFactor !== undefined ? options.bufferFactor : 0.5,
         );
     }
 

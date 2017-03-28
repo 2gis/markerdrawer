@@ -132,17 +132,17 @@ export class CanvasRenderer implements IRenderer {
             const marker = markers[i];
             const data = markersData[i];
 
+            const sprite = atlas.sprites[marker.iconIndex || 0];
+            if (!sprite) {
+                continue;
+            }
+
             const latLng = L.latLng(marker.position[1], marker.position[0]);
             const layerPoint = map.project(latLng, zoom);
             const containerPoint: Vec2 = [
                 layerPoint.x - origin.x - pixelOffset.x,
                 layerPoint.y - origin.y - pixelOffset.y,
             ];
-
-            const sprite = atlas.sprites[marker.iconIndex || 0];
-            if (!sprite) {
-                continue;
-            }
 
             const offset: Vec2 = [
                 containerPoint[0] - sprite.size[0] * sprite.anchor[0],

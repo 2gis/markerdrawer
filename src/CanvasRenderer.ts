@@ -199,6 +199,7 @@ export class CanvasRenderer implements IRenderer {
             '#000000',
             '#ff0000',
             '#00ff00',
+            '#0000ff',
         ];
         const drawingOffsets = marker.drawingOffsets;
         if (!drawingOffsets) {

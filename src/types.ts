@@ -1,4 +1,4 @@
-export type Vec2 = [number, number];
+export type Vec2 = [number, number] | Float32Array;
 
 export type LngLat = [number, number];
 

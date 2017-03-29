@@ -6,25 +6,28 @@ import {
 const R = 6378137;
 const MAX_LATITUDE = 85.0511287798;
 
-export function lngLatToZoomPoint(lngLat: LngLat, zoom: number) {
-    return mapPointToScreenPoint(latLngToMapPoint(lngLat), zoom);
+export function vec2create(): Vec2 {
+    return new Float32Array(2);
 }
 
-function mapPointToScreenPoint(point: Vec2, zoom): Vec2 {
+export function lngLatToZoomPoint(out: Vec2, lngLat: LngLat, zoom: number) {
+    latLngToMapPoint(out, lngLat);
+    mapPointToScreenPoint(out, out, zoom);
+}
+
+function mapPointToScreenPoint(out: Vec2, point: Vec2, zoom) {
     const scale = 256 * Math.pow(2, zoom);
     const k = 0.5 / (Math.PI * R);
-    return [
-        scale * (k * point[0] + 0.5),
-        scale * (-k * point[1] + 0.5),
-    ];
+
+    out[0] = scale * (k * point[0] + 0.5);
+    out[1] = scale * (-k * point[1] + 0.5);
 }
 
-function latLngToMapPoint(lngLat: LngLat): Vec2 {
+function latLngToMapPoint(out: Vec2, lngLat: LngLat) {
     const d = Math.PI / 180;
     const lat = Math.max(Math.min(MAX_LATITUDE, lngLat[1]), -MAX_LATITUDE);
     const sin = Math.sin(lat * d);
-    return [
-        R * lngLat[0] * d,
-        R * Math.log((1 + sin) / (1 - sin)) / 2,
-    ];
+
+    out[0] = R * lngLat[0] * d;
+    out[1] = R * Math.log((1 + sin) / (1 - sin)) / 2;
 }

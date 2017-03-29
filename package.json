@@ -10,7 +10,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git@github.com:Trufi/MarkerDrawer.git"
+    "url": "git@github.com:2gis/markerdrawer.git"
   },
   "main": "dist/markerdrawer.js",
   "typings": "dist/src/index",

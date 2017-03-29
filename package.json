@@ -16,7 +16,8 @@
   "typings": "dist/src/index",
   "scripts": {
     "start": "webpack-dev-server",
-    "build": "webpack --config webpack-dist.config.js"
+    "build": "NODE_ENV=production webpack",
+    "builddemo": "NODE_ENV=demo webpack"
   },
   "devDependencies": {
     "@types/es6-promise": "0.0.32",

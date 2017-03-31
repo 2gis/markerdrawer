@@ -64,8 +64,8 @@ export class CanvasRenderer implements IRenderer {
         this._pixelRatio = window.devicePixelRatio;
 
         this._bufferOffset = [
-            mapSize.x * this._bufferFactor,
-            mapSize.y * this._bufferFactor,
+            Math.floor(mapSize.x * this._bufferFactor),
+            Math.floor(mapSize.y * this._bufferFactor),
         ];
         const size = this._size = [
             mapSize.x + this._bufferOffset[0] * 2,

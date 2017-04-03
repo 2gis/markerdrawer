@@ -140,8 +140,8 @@ export class CanvasRenderer implements IRenderer {
         const offset = vec2create();
 
         lngLatToZoomPoint(origin, [center.lng, center.lat], zoom);
-        origin[0] -= size[0] / 2;
-        origin[1] -= size[1] / 2;
+        origin[0] = Math.round(origin[0] - size[0] / 2);
+        origin[1] = Math.round(origin[1] - size[1] / 2);
 
         for (let i = 0; i < markers.length; i++) {
             const marker = markers[i];

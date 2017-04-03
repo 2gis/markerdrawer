@@ -7,7 +7,7 @@ const R = 6378137;
 const MAX_LATITUDE = 85.0511287798;
 
 export function vec2create(): Vec2 {
-    return new Float32Array(2);
+    return new Float64Array(2);
 }
 
 export function lngLatToZoomPoint(out: Vec2, lngLat: LngLat, zoom: number) {

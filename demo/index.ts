@@ -4,7 +4,7 @@ import {
     Marker,
 } from '../src';
 
-const map = L.map('map', {
+const map = window['map'] = L.map('map', {
     center: [54.980156831455, 82.897440725094],
     zoom: 15,
 });

@@ -78,6 +78,7 @@ export class MarkerDrawer extends L.Layer {
             moveend: this._update,
             zoomstart: this._onZoomStart,
             click: this._onClick,
+            resize: this._onResize,
         };
     }
 
@@ -107,5 +108,9 @@ export class MarkerDrawer extends L.Layer {
         if (markers.length) {
             this.fire('click', { markers });
         }
+    }
+
+    private _onResize() {
+        this._renderer.invalidateSize();
     }
 }

@@ -60,7 +60,24 @@ export class CanvasRenderer implements IRenderer {
 
     public onAddToMap(map: L.Map) {
         this._map = map;
-        const mapSize = map.getSize();
+        this.invalidateSize();
+    }
+
+    public onRemoveFromMap() {
+        this._map = undefined;
+    }
+
+    public clear() {
+        this._ctx.clearRect(0, 0, this._size[0] * this._pixelRatio, this._size[1] * this._pixelRatio);
+        this._tree.clear();
+    }
+
+    public invalidateSize() {
+        if (!this._map) {
+            return;
+        }
+
+        const mapSize = this._map.getSize();
         this._pixelRatio = window.devicePixelRatio;
 
         this._bufferOffset = [
@@ -76,15 +93,6 @@ export class CanvasRenderer implements IRenderer {
         this.container.height = size[1] * this._pixelRatio;
         this.container.style.width = size[0] + 'px';
         this.container.style.height = size[1] + 'px';
-    }
-
-    public onRemoveFromMap() {
-        this._map = undefined;
-    }
-
-    public clear() {
-        this._ctx.clearRect(0, 0, this._size[0] * this._pixelRatio, this._size[1] * this._pixelRatio);
-        this._tree.clear();
     }
 
     public update() {

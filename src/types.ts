@@ -14,4 +14,5 @@ export interface IRenderer {
     clear();
     search(point: L.Point);
     update();
+    invalidateSize();
 }

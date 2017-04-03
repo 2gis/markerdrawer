@@ -104,8 +104,8 @@ export class CanvasRenderer implements IRenderer {
     }
 
     public search(point: L.Point) {
-        const x = point.x + this._bufferOffset[0];
-        const y = point.y + this._bufferOffset[1];
+        const x = (point.x + this._bufferOffset[0]) * this._pixelRatio;
+        const y = (point.y + this._bufferOffset[1]) * this._pixelRatio;
         const res: MarkerData[] = this._tree.search({
             minX: x,
             minY: y,
@@ -137,9 +137,7 @@ export class CanvasRenderer implements IRenderer {
         ctx.clearRect(0, 0, size[0] * pixelRatio, size[1] * pixelRatio);
 
         const origin = vec2create();
-        const containerPoint = vec2create();
         const offset = vec2create();
-        const realOffset = vec2create();
 
         lngLatToZoomPoint(origin, [center.lng, center.lat], zoom);
         origin[0] -= size[0] / 2;
@@ -151,18 +149,19 @@ export class CanvasRenderer implements IRenderer {
 
             const sprite = atlas.sprites[marker.iconIndex || 0];
             if (!sprite) {
+                data.inBounds = false;
                 continue;
             }
 
-            lngLatToZoomPoint(containerPoint, marker.position, zoom);
-            containerPoint[0] -= origin[0];
-            containerPoint[1] -= origin[1];
+            lngLatToZoomPoint(offset, marker.position, zoom);
+            offset[0] -= origin[0];
+            offset[1] -= origin[1];
 
-            offset[0] = containerPoint[0] - sprite.size[0] * sprite.anchor[0];
-            offset[1] = containerPoint[1] - sprite.size[1] * sprite.anchor[1];
+            offset[0] = Math.round(offset[0] * pixelRatio - sprite.size[0] * sprite.anchor[0]);
+            offset[1] = Math.round(offset[1] * pixelRatio - sprite.size[1] * sprite.anchor[1]);
 
-            if (offset[0] < 0 || offset[0] + sprite.size[0] > size[0] ||
-                offset[1] < 0 || offset[1] + sprite.size[1] > size[1]) {
+            if (offset[0] < 0 || offset[0] + sprite.size[0] > size[0] * pixelRatio ||
+                offset[1] < 0 || offset[1] + sprite.size[1] > size[1] * pixelRatio) {
                 data.inBounds = false;
                 continue;
             }
@@ -174,9 +173,6 @@ export class CanvasRenderer implements IRenderer {
             data.maxX = offset[0] + sprite.size[0];
             data.maxY = offset[1] + sprite.size[1];
 
-            realOffset[0] = Math.round(containerPoint[0] * pixelRatio - sprite.size[0] * sprite.anchor[0]);
-            realOffset[1] = Math.round(containerPoint[1] * pixelRatio - sprite.size[1] * sprite.anchor[1]);
-
             ctx.drawImage(
                 atlas.image,
                 sprite.position[0],
@@ -184,27 +180,29 @@ export class CanvasRenderer implements IRenderer {
                 sprite.size[0],
                 sprite.size[1],
 
-                realOffset[0],
-                realOffset[1],
+                offset[0],
+                offset[1],
                 sprite.size[0],
                 sprite.size[1],
             );
 
             if (debugDrawing) {
-                this._debugDraw(marker, realOffset, sprite.size);
+                this._debugDraw(marker, offset, sprite.size);
             }
         }
     }
 
     private _updateTree() {
         const markersData = this._markersData;
+        const visibleMarkers: MarkerData[] = [];
         this._tree.clear();
         for (let i = 0; i < markersData.length; i++) {
             const markerData = markersData[i];
             if (markerData.inBounds) {
-                this._tree.load(markerData);
+                visibleMarkers.push(markerData);
             }
         }
+        this._tree.load(visibleMarkers);
     }
 
     private _debugDraw(marker: Marker, offset: Vec2, size: Vec2) {

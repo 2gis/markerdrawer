@@ -7,7 +7,7 @@
     "email": "stevemyz@gmail.com",
     "url": "https://trufi.github.io/"
   },
-  "license": "MIT",
+  "license": "BSD-2-Clause",
   "repository": {
     "type": "git",
     "url": "git@github.com:2gis/markerdrawer.git"
@@ -15,9 +15,12 @@
   "main": "dist/markerdrawer.js",
   "typings": "dist/src/index",
   "scripts": {
-    "start": "webpack-dev-server",
+    "start": "npm run dev",
+    "test": "npm run lint",
+    "dev": "webpack-dev-server",
     "build": "NODE_ENV=production webpack",
-    "builddemo": "NODE_ENV=demo webpack"
+    "builddemo": "NODE_ENV=demo webpack",
+    "lint": "tslint src/**/*.ts demo/**/*.ts"
   },
   "devDependencies": {
     "@types/es6-promise": "0.0.32",

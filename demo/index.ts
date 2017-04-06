@@ -45,16 +45,20 @@ const atlas = new Atlas([{
     size: [25 * pixelRatio, 41 * pixelRatio],
 }]);
 
-const markerDrawer = new MarkerDrawer(markersData, atlas, {
+const markerDrawer = new MarkerDrawer(atlas, {
     bufferFactor: 0.5,
 });
+
+markerDrawer.setMarkers(markersData);
 
 markerDrawer.on('click', (ev: any) => {
     // tslint:disable-next-line
     console.log('click', ev);
 
-    const arg = ev.markers.map((index) => ({ index, iconIndex: 1 }));
-    markerDrawer.setMarkersIcon(arg);
+    ev.markers.forEach((index) => {
+        markersData[index].iconIndex = 1;
+    });
+    markerDrawer.update();
 });
 
 markerDrawer.addTo(map);

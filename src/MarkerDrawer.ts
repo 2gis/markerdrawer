@@ -17,17 +17,25 @@ export class MarkerDrawer extends L.Layer {
     private _renderer: CanvasRenderer;
     private _pane: HTMLElement;
 
-    constructor(markers: Marker[], atlas: Atlas, options: MarkerDrawerOptions = {}) {
+    constructor(atlas: Atlas, options: MarkerDrawerOptions = {}) {
         super();
 
-        this._markers = markers;
         this._atlas = atlas;
         this._renderer = new CanvasRenderer(
-            this._markers,
             this._atlas,
             options.debugDrawing || false,
             options.bufferFactor !== undefined ? options.bufferFactor : 0.5,
         );
+    }
+
+    public setMarkers(markers: Marker[]) {
+        this._markers = markers;
+        this._renderer.setMarkers(markers);
+        this._renderer.update();
+    }
+
+    public update() {
+        this._renderer.update();
     }
 
     public addTo(map: L.Map) {
@@ -60,6 +68,7 @@ export class MarkerDrawer extends L.Layer {
     public remove() {
         if (this._map) {
             this._map.removeLayer(this);
+            this._renderer.clear();
         }
 
         return this;
@@ -80,18 +89,6 @@ export class MarkerDrawer extends L.Layer {
             click: this._onClick,
             resize: this._onResize,
         };
-    }
-
-    public setMarkerIcon(index: number, iconIndex: number) {
-        this._markers[index].iconIndex = iconIndex;
-        this._renderer.update();
-    }
-
-    public setMarkersIcon(array: Array<{index: number, iconIndex: number}>) {
-        array.forEach(({ index, iconIndex }) => {
-            this._markers[index].iconIndex = iconIndex;
-        });
-        this._renderer.update();
     }
 
     private _onZoomStart() {

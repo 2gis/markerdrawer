@@ -31,3 +31,5 @@ function latLngToMapPoint(out: Vec2, lngLat: LngLat) {
     out[0] = R * lngLat[0] * d;
     out[1] = R * Math.log((1 + sin) / (1 - sin)) / 2;
 }
+
+export const now = window.performance ? performance.now.bind(performance) : Date.now.bind(Date);

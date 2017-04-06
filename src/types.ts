@@ -9,10 +9,11 @@ export interface Marker {
 };
 
 export interface IRenderer {
-    container: HTMLCanvasElement;
+    container: HTMLDivElement;
     onAddToMap(map: L.Map);
     clear();
     search(point: L.Point);
     update();
     invalidateSize();
+    setMarkers(markes: Marker[]);
 }

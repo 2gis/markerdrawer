@@ -9,6 +9,7 @@ import {
 import {
     lngLatToZoomPoint,
     vec2create,
+    now,
 } from './utils';
 
 interface MarkerData {
@@ -20,42 +21,71 @@ interface MarkerData {
     maxY?: number;
 }
 
+interface Frame {
+    canvas: HTMLCanvasElement;
+    ctx: CanvasRenderingContext2D;
+    tree: any;
+}
+
 export class CanvasRenderer implements IRenderer {
-    public container: HTMLCanvasElement;
+    public container: HTMLDivElement;
+
+    private _atlas: Atlas;
 
     private _markers: Marker[];
     private _markersData: MarkerData[];
-    private _atlas: Atlas;
-    private _ctx: CanvasRenderingContext2D;
+
+    private _debugDrawing: boolean;
+
     private _map: L.Map | undefined;
     private _size: Vec2;
-    private _pixelRatio: number;
-    private _pixelOffset: L.Point;
-    private _tree: any;
-    private _debugDrawing: boolean;
+    private _zoom: number;
     private _bufferFactor: number;
     private _bufferOffset: Vec2;
 
-    constructor(markers: Marker[], atlas: Atlas, debugDrawing: boolean, bufferFactor: number) {
-        this._markers = markers;
+    private _origin: Vec2;
+    private _pixelRatio: number;
+
+    private _currentFrame: Frame;
+    private _hiddenFrame: Frame;
+    private _isRendering: boolean;
+    private _timePerFrame: number;
+    private _markersPerFrame: number;
+    private _lastRenderedMarker: number;
+    private _needUpdate: boolean;
+    private _requestAnimationFrameId: number;
+
+    private _vec: Vec2;
+
+    constructor(atlas: Atlas, debugDrawing: boolean, bufferFactor: number) {
         this._atlas = atlas;
         this._debugDrawing = debugDrawing;
         this._bufferFactor = bufferFactor;
+        this._markersPerFrame = 5000;
+        this._timePerFrame = 10;
+        this._origin = vec2create();
+        this._vec = vec2create();
+        this._lastRenderedMarker = 0;
+        this._needUpdate = false;
+
+        this.container = document.createElement('div');
+        this._currentFrame = this._createFrame();
+        this._hiddenFrame = this._createFrame();
+    }
+
+    public setMarkers(markers: Marker[]) {
+        this.clear();
+
+        this._markers = markers;
 
         // Set ordered indices
-        const markersData: MarkerData[] = this._markersData = [];
+        const markersData: MarkerData[] = [];
         for (let i = 0; i < markers.length; i++) {
             markersData[i] = {
                 index: i,
             };
         }
-
-        this.container = document.createElement('canvas');
-
-        // We do not consider the case when 2d context is not exist
-        this._ctx = this.container.getContext('2d') as CanvasRenderingContext2D;
-
-        this._tree = rbush();
+        this._markersData = markersData;
     }
 
     public onAddToMap(map: L.Map) {
@@ -68,8 +98,17 @@ export class CanvasRenderer implements IRenderer {
     }
 
     public clear() {
-        this._ctx.clearRect(0, 0, this._size[0] * this._pixelRatio, this._size[1] * this._pixelRatio);
-        this._tree.clear();
+        if (!this._map) {
+            return;
+        }
+
+        this._currentFrame.ctx.clearRect(0, 0, this._size[0] * this._pixelRatio, this._size[1] * this._pixelRatio);
+        this._currentFrame.tree.clear();
+
+        if (this._isRendering) {
+            cancelAnimationFrame(this._requestAnimationFrameId);
+            this._isRendering = false;
+        }
     }
 
     public invalidateSize() {
@@ -89,10 +128,15 @@ export class CanvasRenderer implements IRenderer {
             mapSize.y + this._bufferOffset[1] * 2,
         ];
 
-        this.container.width = size[0] * this._pixelRatio;
-        this.container.height = size[1] * this._pixelRatio;
-        this.container.style.width = size[0] + 'px';
-        this.container.style.height = size[1] + 'px';
+        this._currentFrame.canvas.width = size[0] * this._pixelRatio;
+        this._currentFrame.canvas.height = size[1] * this._pixelRatio;
+        this._currentFrame.canvas.style.width = size[0] + 'px';
+        this._currentFrame.canvas.style.height = size[1] + 'px';
+
+        this._hiddenFrame.canvas.width = size[0] * this._pixelRatio;
+        this._hiddenFrame.canvas.height = size[1] * this._pixelRatio;
+        this._hiddenFrame.canvas.style.width = size[0] + 'px';
+        this._hiddenFrame.canvas.style.height = size[1] + 'px';
     }
 
     public update() {
@@ -100,21 +144,25 @@ export class CanvasRenderer implements IRenderer {
             return;
         }
 
-        this._pixelOffset = this._map.containerPointToLayerPoint([
-            -this._bufferOffset[0],
-            -this._bufferOffset[1],
-        ]);
+        if (this._isRendering) {
+            this._needUpdate = true;
+            return;
+        }
 
-        L.DomUtil.setPosition(this.container, this._pixelOffset);
+        this._zoom = this._map.getZoom();
+        const center = this._map.getCenter();
+
+        lngLatToZoomPoint(this._origin, [center.lng, center.lat], this._zoom);
+        this._origin[0] = Math.round(this._origin[0] - this._size[0] / 2);
+        this._origin[1] = Math.round(this._origin[1] - this._size[1] / 2);
 
         this._render();
-        this._updateTree();
     }
 
     public search(point: L.Point) {
         const x = (point.x + this._bufferOffset[0]) * this._pixelRatio;
         const y = (point.y + this._bufferOffset[1]) * this._pixelRatio;
-        const res: MarkerData[] = this._tree.search({
+        const res: MarkerData[] = this._currentFrame.tree.search({
             minX: x,
             minY: y,
             maxX: x,
@@ -125,33 +173,72 @@ export class CanvasRenderer implements IRenderer {
     }
 
     private _render() {
-        const markers = this._markers;
-        const markersData = this._markersData;
-        const atlas = this._atlas;
-        const ctx = this._ctx;
-        const map = this._map;
-        const debugDrawing = this._debugDrawing;
-        const pixelRatio = this._pixelRatio;
-
-        if (!map || !atlas.image) {
+        if (!this._map) {
             return;
         }
 
-        const zoom = map.getZoom();
-        const center = map.getCenter();
+        this._hiddenFrame.tree.clear();
+        this._hiddenFrame.ctx.clearRect(0, 0, this._size[0] * this._pixelRatio, this._size[1] * this._pixelRatio);
 
+        this._isRendering = true;
+        this._lastRenderedMarker = 0;
+
+        this._renderLoop();
+    }
+
+    private _renderLoop = () => {
+        const from = this._lastRenderedMarker;
+        const to = Math.min(from + this._markersPerFrame, this._markers.length);
+
+        const startTime = now();
+
+        this._renderPart(
+            from,
+            to,
+        );
+
+        this._lastRenderedMarker = to;
+
+        const timePerMarker = (now() - startTime) / (to - from);
+        this._markersPerFrame = Math.floor((this._markersPerFrame + this._timePerFrame / timePerMarker) / 2);
+
+        if (to !== this._markers.length) {
+            this._requestAnimationFrameId = requestAnimationFrame(this._renderLoop);
+        } else {
+            this._isRendering = false;
+            this._switchFrames();
+
+            if (this._needUpdate) {
+                this._needUpdate = false;
+                this.update();
+            }
+        }
+    }
+
+    private _renderPart(
+        from: number,
+        to: number,
+    ) {
+        const markers = this._markers;
+        const markersData = this._markersData;
+        const atlas = this._atlas;
+        const debugDrawing = this._debugDrawing;
+        const pixelRatio = this._pixelRatio;
         const size = this._size;
+        const ctx = this._hiddenFrame.ctx;
+        const offset = this._vec;
+        const zoom = this._zoom;
+        const origin = this._origin;
 
-        ctx.clearRect(0, 0, size[0] * pixelRatio, size[1] * pixelRatio);
+        if (!atlas.image) {
+            return;
+        }
 
-        const origin = vec2create();
-        const offset = vec2create();
+        this._lastRenderedMarker = to;
 
-        lngLatToZoomPoint(origin, [center.lng, center.lat], zoom);
-        origin[0] = Math.round(origin[0] - size[0] / 2);
-        origin[1] = Math.round(origin[1] - size[1] / 2);
+        const visibleMarkers: MarkerData[] = [];
 
-        for (let i = 0; i < markers.length; i++) {
+        for (let i = from; i < to; i++) {
             const marker = markers[i];
             const data = markersData[i];
 
@@ -180,6 +267,7 @@ export class CanvasRenderer implements IRenderer {
             data.minY = offset[1];
             data.maxX = offset[0] + sprite.size[0];
             data.maxY = offset[1] + sprite.size[1];
+            visibleMarkers.push(data);
 
             ctx.drawImage(
                 atlas.image,
@@ -198,23 +286,12 @@ export class CanvasRenderer implements IRenderer {
                 this._debugDraw(marker, offset, sprite.size);
             }
         }
-    }
 
-    private _updateTree() {
-        const markersData = this._markersData;
-        const visibleMarkers: MarkerData[] = [];
-        this._tree.clear();
-        for (let i = 0; i < markersData.length; i++) {
-            const markerData = markersData[i];
-            if (markerData.inBounds) {
-                visibleMarkers.push(markerData);
-            }
-        }
-        this._tree.load(visibleMarkers);
+        this._hiddenFrame.tree.load(visibleMarkers);
     }
 
     private _debugDraw(marker: Marker, offset: Vec2, size: Vec2) {
-        const ctx = this._ctx;
+        const ctx = this._hiddenFrame.ctx;
         const colors = [
             '#000000',
             '#ff0000',
@@ -239,5 +316,41 @@ export class CanvasRenderer implements IRenderer {
 
             ctx.stroke();
         }
+    }
+
+    private _createFrame(): Frame {
+        const canvas = document.createElement('canvas');
+        canvas.style.display = 'none';
+        canvas.style.pointerEvents = 'none';
+        // We do not consider the case when 2d context is not exist
+        const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+        const tree = rbush();
+
+        this.container.appendChild(canvas);
+
+        return {
+            canvas,
+            ctx,
+            tree,
+        };
+    }
+
+    private _switchFrames() {
+        if (!this._map) {
+            return;
+        }
+
+        this._currentFrame.canvas.style.display = 'none';
+        this._hiddenFrame.canvas.style.display = 'block';
+
+        const pixelOffset = this._map.containerPointToLayerPoint([
+            -this._bufferOffset[0],
+            -this._bufferOffset[1],
+        ]);
+        L.DomUtil.setPosition(this._hiddenFrame.canvas, pixelOffset);
+
+        const t = this._currentFrame;
+        this._currentFrame = this._hiddenFrame;
+        this._hiddenFrame = t;
     }
 }

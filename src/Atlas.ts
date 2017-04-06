@@ -9,12 +9,14 @@ export type Icon = {
     anchor?: Vec2; // [anchor=[0.5, 0.5]]
     size?: Vec2; // [size=[image.width, image.height]] Size in a final atlas image
     // Может отличаться от исходного размера изображения.
+    pixelDensity?: number; // Icon pixel density, 1 by default
 };
 
 export type Sprite = {
     position: Vec2; // Position of icon in the image of atlas
     size: Vec2; // Size of icon in the atlas
     anchor: Vec2;
+    pixelDensity: number; // Icon pixel density
 };
 
 /**
@@ -69,6 +71,7 @@ export class Atlas {
                 anchor: icon.anchor || [0.5, 0.5],
                 size,
                 imageSize,
+                pixelDensity: icon.pixelDensity || 1,
             };
         });
 
@@ -80,6 +83,7 @@ export class Atlas {
             position: [icon.x + margin, icon.y + margin],
             size: icon.size,
             anchor: icon.anchor,
+            pixelDensity: icon.pixelDensity,
         }));
 
         const canvas = this.image = document.createElement('canvas');

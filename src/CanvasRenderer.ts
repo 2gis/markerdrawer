@@ -248,15 +248,17 @@ export class CanvasRenderer implements IRenderer {
                 continue;
             }
 
+            const spriteScale = pixelRatio / sprite.pixelDensity;
+
             lngLatToZoomPoint(offset, marker.position, zoom);
             offset[0] -= origin[0];
             offset[1] -= origin[1];
 
-            offset[0] = Math.round(offset[0] * pixelRatio - sprite.size[0] * sprite.anchor[0]);
-            offset[1] = Math.round(offset[1] * pixelRatio - sprite.size[1] * sprite.anchor[1]);
+            offset[0] = Math.round(offset[0] * pixelRatio - sprite.size[0] * spriteScale * sprite.anchor[0]);
+            offset[1] = Math.round(offset[1] * pixelRatio - sprite.size[1] * spriteScale * sprite.anchor[1]);
 
-            if (offset[0] < 0 || offset[0] + sprite.size[0] > size[0] * pixelRatio ||
-                offset[1] < 0 || offset[1] + sprite.size[1] > size[1] * pixelRatio) {
+            if (offset[0] < 0 || offset[0] + sprite.size[0] * spriteScale > size[0] * pixelRatio ||
+                offset[1] < 0 || offset[1] + sprite.size[1] * spriteScale > size[1] * pixelRatio) {
                 data.inBounds = false;
                 continue;
             }
@@ -265,8 +267,8 @@ export class CanvasRenderer implements IRenderer {
             data.inBounds = true;
             data.minX = offset[0];
             data.minY = offset[1];
-            data.maxX = offset[0] + sprite.size[0];
-            data.maxY = offset[1] + sprite.size[1];
+            data.maxX = offset[0] + sprite.size[0] * spriteScale;
+            data.maxY = offset[1] + sprite.size[1] * spriteScale;
             visibleMarkers.push(data);
 
             ctx.drawImage(
@@ -278,8 +280,8 @@ export class CanvasRenderer implements IRenderer {
 
                 offset[0],
                 offset[1],
-                sprite.size[0],
-                sprite.size[1],
+                sprite.size[0] * spriteScale,
+                sprite.size[1] * spriteScale,
             );
 
             if (debugDrawing) {

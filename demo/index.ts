@@ -33,16 +33,14 @@ pin.src = 'demo/marker.png';
 const hoveredPin = new Image();
 hoveredPin.src = 'demo/marker_hover.png';
 
-const pixelRatio = window.devicePixelRatio;
-
 const atlas = new Atlas([{
     image: pin,
     anchor: [0.5, 1],
-    size: [25 * pixelRatio, 41 * pixelRatio],
+    size: [25, 41],
 }, {
     image: hoveredPin,
     anchor: [0.5, 1],
-    size: [25 * pixelRatio, 41 * pixelRatio],
+    size: [25, 41],
 }]);
 
 const markerDrawer = new MarkerDrawer(atlas, {

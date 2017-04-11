@@ -56,6 +56,7 @@ export class MarkerDrawer extends L.Layer {
         }
 
         this._renderer.onAddToMap(this._map);
+        this._renderer.container.addEventListener('click', this._onClick);
         this._pane.appendChild(this._renderer.container);
         this._atlas.whenReady()
             .then(() => {
@@ -77,6 +78,7 @@ export class MarkerDrawer extends L.Layer {
     public onRemove() {
         this._pane.removeChild(this._renderer.container);
         this._renderer.onRemoveFromMap();
+        this._renderer.container.removeEventListener('click', this._onClick);
 
         return this;
     }
@@ -86,7 +88,6 @@ export class MarkerDrawer extends L.Layer {
             viewreset: this._update,
             moveend: this._update,
             zoomstart: this._onZoomStart,
-            click: this._onClick,
             resize: this._onResize,
         };
     }
@@ -99,10 +100,11 @@ export class MarkerDrawer extends L.Layer {
         this._renderer.update();
     }
 
-    private _onClick(e) {
-        const markers = this._renderer.search(e.containerPoint);
+    private _onClick = (ev: MouseEvent) => {
+        const markers = this._renderer.search(ev.clientX, ev.clientY);
 
         if (markers.length) {
+            ev.stopPropagation();
             this.fire('click', { markers });
         }
     }

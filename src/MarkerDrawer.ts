@@ -21,6 +21,7 @@ export class MarkerDrawer extends L.Layer {
         super();
 
         this._atlas = atlas;
+        this._markers = [];
         this._renderer = new CanvasRenderer(
             this._atlas,
             options.debugDrawing || false,
@@ -31,7 +32,6 @@ export class MarkerDrawer extends L.Layer {
     public setMarkers(markers: Marker[]) {
         this._markers = markers;
         this._renderer.setMarkers(markers);
-        this._renderer.update();
     }
 
     public update() {
@@ -69,7 +69,6 @@ export class MarkerDrawer extends L.Layer {
     public remove() {
         if (this._map) {
             this._map.removeLayer(this);
-            this._renderer.clear();
         }
 
         return this;
@@ -83,21 +82,8 @@ export class MarkerDrawer extends L.Layer {
         return this;
     }
 
-    public getEvents() {
-        return {
-            viewreset: this._update,
-            moveend: this._update,
-            zoomstart: this._onZoomStart,
-            resize: this._onResize,
-        };
-    }
-
-    private _onZoomStart() {
-        this._renderer.clear();
-    }
-
-    private _update() {
-        this._renderer.update();
+    public setDebugDrawing(value: boolean) {
+        this._renderer.setDebugDrawing(value);
     }
 
     private _onClick = (ev: MouseEvent) => {
@@ -107,9 +93,5 @@ export class MarkerDrawer extends L.Layer {
             ev.stopPropagation();
             this.fire('click', { markers });
         }
-    }
-
-    private _onResize() {
-        this._renderer.invalidateSize();
     }
 }

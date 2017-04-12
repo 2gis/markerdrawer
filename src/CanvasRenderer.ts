@@ -34,6 +34,7 @@ export class CanvasRenderer implements IRenderer {
 
     private _markers: Marker[];
     private _markersData: MarkerData[];
+    private _isZooming: boolean;
 
     private _debugDrawing: boolean;
 
@@ -59,6 +60,9 @@ export class CanvasRenderer implements IRenderer {
 
     constructor(atlas: Atlas, debugDrawing: boolean, bufferFactor: number) {
         this._atlas = atlas;
+        this._markers = [];
+        this._markersData = [];
+        this._isZooming = false;
         this._debugDrawing = debugDrawing;
         this._bufferFactor = bufferFactor;
         this._markersPerFrame = 5000;
@@ -74,27 +78,55 @@ export class CanvasRenderer implements IRenderer {
     }
 
     public setMarkers(markers: Marker[]) {
-        this.clear();
+        this._needUpdate = false;
+
+        if (this._isRendering) {
+            cancelAnimationFrame(this._requestAnimationFrameId);
+            this._isRendering = false;
+        }
+
+        // Set ordered indices
+        if (markers.length > this._markersData.length) {
+            const markersData: MarkerData[] = [];
+            for (let i = 0; i < markers.length; i++) {
+                markersData[i] = {
+                    index: i,
+                };
+            }
+            this._markersData = markersData;
+        }
 
         this._markers = markers;
 
-        // Set ordered indices
-        const markersData: MarkerData[] = [];
-        for (let i = 0; i < markers.length; i++) {
-            markersData[i] = {
-                index: i,
-            };
-        }
-        this._markersData = markersData;
+        this.update();
     }
 
     public onAddToMap(map: L.Map) {
         this._map = map;
-        this.invalidateSize();
+        map.on({
+            viewreset: this.update,
+            moveend: this._onMoveEnd,
+            zoomstart: this._onZoomStart,
+            resize: this._onResize,
+        });
+        this._onResize();
     }
 
     public onRemoveFromMap() {
+        if (!this._map) {
+            return;
+        }
+
+        this._map.off({
+            viewreset: this.update,
+            moveend: this._onMoveEnd,
+            zoomstart: this._onZoomStart,
+            resize: this._onResize,
+        });
+
         this._map = undefined;
+        this._markersData = [];
+        this._markers = [];
     }
 
     public clear() {
@@ -104,6 +136,7 @@ export class CanvasRenderer implements IRenderer {
 
         this._currentFrame.ctx.clearRect(0, 0, this._size[0] * this._pixelRatio, this._size[1] * this._pixelRatio);
         this._currentFrame.tree.clear();
+        this._needUpdate = false;
 
         if (this._isRendering) {
             cancelAnimationFrame(this._requestAnimationFrameId);
@@ -111,7 +144,50 @@ export class CanvasRenderer implements IRenderer {
         }
     }
 
-    public invalidateSize() {
+    public update = () => {
+        if (!this._map) {
+            return;
+        }
+
+        if (this._isRendering || this._isZooming) {
+            this._needUpdate = true;
+            return;
+        }
+
+        this._zoom = this._map.getZoom();
+        const center = this._map.getCenter();
+
+        lngLatToZoomPoint(this._origin, [center.lng, center.lat], this._zoom);
+        this._origin[0] = Math.round(this._origin[0] - this._size[0] / 2);
+        this._origin[1] = Math.round(this._origin[1] - this._size[1] / 2);
+
+        const pixelOffset = this._map.containerPointToLayerPoint([
+            -this._bufferOffset[0],
+            -this._bufferOffset[1],
+        ]);
+        L.DomUtil.setPosition(this._hiddenFrame.canvas, pixelOffset);
+
+        this._render();
+    }
+
+    public search(px: number, py: number) {
+        const x = (px + this._bufferOffset[0]) * this._pixelRatio;
+        const y = (py + this._bufferOffset[1]) * this._pixelRatio;
+        const res: MarkerData[] = this._currentFrame.tree.search({
+            minX: x,
+            minY: y,
+            maxX: x,
+            maxY: y,
+        });
+
+        return res.map((d) => d.index);
+    }
+
+    public setDebugDrawing(value: boolean) {
+        this._debugDrawing = value;
+    }
+
+    private _onResize = () => {
         if (!this._map) {
             return;
         }
@@ -139,37 +215,14 @@ export class CanvasRenderer implements IRenderer {
         this._hiddenFrame.canvas.style.height = size[1] + 'px';
     }
 
-    public update() {
-        if (!this._map) {
-            return;
-        }
-
-        if (this._isRendering) {
-            this._needUpdate = true;
-            return;
-        }
-
-        this._zoom = this._map.getZoom();
-        const center = this._map.getCenter();
-
-        lngLatToZoomPoint(this._origin, [center.lng, center.lat], this._zoom);
-        this._origin[0] = Math.round(this._origin[0] - this._size[0] / 2);
-        this._origin[1] = Math.round(this._origin[1] - this._size[1] / 2);
-
-        this._render();
+    private _onZoomStart = () => {
+        this.clear();
+        this._isZooming = true;
     }
 
-    public search(px: number, py: number) {
-        const x = (px + this._bufferOffset[0]) * this._pixelRatio;
-        const y = (py + this._bufferOffset[1]) * this._pixelRatio;
-        const res: MarkerData[] = this._currentFrame.tree.search({
-            minX: x,
-            minY: y,
-            maxX: x,
-            maxY: y,
-        });
-
-        return res.map((d) => d.index);
+    private _onMoveEnd = () => {
+        this._isZooming = false;
+        this.update();
     }
 
     private _render() {
@@ -190,6 +243,10 @@ export class CanvasRenderer implements IRenderer {
         const from = this._lastRenderedMarker;
         const to = Math.min(from + this._markersPerFrame, this._markers.length);
 
+        if (from === to) {
+            return;
+        }
+
         const startTime = now();
 
         this._renderPart(
@@ -199,8 +256,14 @@ export class CanvasRenderer implements IRenderer {
 
         this._lastRenderedMarker = to;
 
-        const timePerMarker = (now() - startTime) / (to - from);
-        this._markersPerFrame = Math.floor((this._markersPerFrame + this._timePerFrame / timePerMarker) / 2);
+        const timeDelta = now() - startTime;
+        const timePerMarker = timeDelta / (to - from);
+        if (timePerMarker !== 0) {
+            this._markersPerFrame = Math.max(
+                Math.floor((this._markersPerFrame + this._timePerFrame / timePerMarker) / 2),
+                100,
+            );
+        }
 
         if (to !== this._markers.length) {
             this._requestAnimationFrameId = requestAnimationFrame(this._renderLoop);
@@ -344,12 +407,6 @@ export class CanvasRenderer implements IRenderer {
 
         this._currentFrame.canvas.style.display = 'none';
         this._hiddenFrame.canvas.style.display = 'block';
-
-        const pixelOffset = this._map.containerPointToLayerPoint([
-            -this._bufferOffset[0],
-            -this._bufferOffset[1],
-        ]);
-        L.DomUtil.setPosition(this._hiddenFrame.canvas, pixelOffset);
 
         const t = this._currentFrame;
         this._currentFrame = this._hiddenFrame;

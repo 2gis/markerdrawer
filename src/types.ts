@@ -14,6 +14,6 @@ export interface IRenderer {
     clear();
     search(x: number, y: number);
     update();
-    invalidateSize();
     setMarkers(markes: Marker[]);
+    setDebugDrawing(value: boolean);
 }

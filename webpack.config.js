@@ -1,7 +1,7 @@
 const webpack = require('webpack');
 const path = require('path');
 
-const env = process.env.NODE_ENV
+const env = process.env.NODE_ENV;
 const config = {
     module: {
         rules: [
@@ -26,7 +26,8 @@ switch (env) {
                 filename: 'markerdrawer.js',
                 path: path.resolve(__dirname, 'dist'),
                 publicPath: '/dist/',
-                libraryTarget: 'commonjs'
+                libraryTarget: 'umd',
+                library: 'MarkerDrawer'
             },
             plugins:[
                 new webpack.optimize.UglifyJsPlugin({

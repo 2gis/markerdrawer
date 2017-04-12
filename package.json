@@ -23,7 +23,6 @@
     "lint": "tslint src/**/*.ts demo/**/*.ts"
   },
   "devDependencies": {
-    "@types/es6-promise": "0.0.32",
     "@types/leaflet": "^1.0.50",
     "@types/rbush": "^2.0.2",
     "bin-pack": "^1.0.2",

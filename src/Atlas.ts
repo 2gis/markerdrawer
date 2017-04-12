@@ -33,7 +33,7 @@ export class Atlas {
     constructor(icons: Icon[]) {
         this.sprites = [];
 
-        this._promise = Promise.all(icons.map((icon) => this._imageLoad(icon.image)))
+        this._promise = Promise.all<any>(icons.map((icon) => this._imageLoad(icon.image)))
             .then(() => this._createSprite(icons));
     }
 

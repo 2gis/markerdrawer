@@ -391,7 +391,11 @@ export class CanvasRenderer implements IRenderer {
     private _createFrame(): Frame {
         const canvas = document.createElement('canvas');
         canvas.style.display = 'none';
-        canvas.style.pointerEvents = 'none';
+
+        // In 2gis-maps a "position: absolute" style affects to the canvas
+        // Remove when 2gis-maps update leaflet to 1.0.3
+        canvas.style.position = 'initial';
+
         // We do not consider the case when 2d context is not exist
         const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
         const tree = rbush();

@@ -49,11 +49,7 @@ export class MarkerDrawer extends L.Layer {
             return this;
         }
 
-        if (!this._map.getPane('markerbatch')) {
-            this._pane = this._map.createPane('markerbatch');
-        } else {
-            this._pane = this._map.getPane('markerbatch');
-        }
+        this._pane = this._map.getPane('overlayPane');
 
         this._renderer.onAddToMap(this._map);
         this._renderer.container.addEventListener('click', this._onClick);

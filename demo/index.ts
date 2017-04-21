@@ -1,17 +1,21 @@
+import * as DG from '2gis-maps';
 import {
     MarkerDrawer,
     Atlas,
     Marker,
 } from '../src';
 
-const map = window['map'] = L.map('map', {
+const map = window['map'] = DG.map('map', {
     center: [54.980156831455, 82.897440725094],
     zoom: 15,
+    geoclicker: true,
 });
 
-L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-}).addTo(map);
+// tslint:disable-next-line
+map.on('click', () => console.log('map click'));
+
+// tslint:disable-next-line
+map.poi.getMetaLayer().on('click', () => console.log('poi click'));
 
 const centerLngLat: [number, number] = [82.897440725094, 54.980156831455];
 const markersData: Marker[] = [];
@@ -28,19 +32,22 @@ markersData.push({
 });
 
 const pin = new Image();
-pin.src = 'demo/marker.png';
+const pixelRatio = window.devicePixelRatio < 2 ? 1 : 2;
+pin.src = 'demo/markers/' + pixelRatio + '/pin_regular.png';
 
 const hoveredPin = new Image();
-hoveredPin.src = 'demo/marker_hover.png';
+hoveredPin.src = 'demo/markers/' + pixelRatio + '/pin_regular_hover.png';
 
 const atlas = new Atlas([{
     image: pin,
     anchor: [0.5, 1],
-    size: [25, 41],
+    size: [22, 30],
+    pixelDensity: pixelRatio,
 }, {
     image: hoveredPin,
     anchor: [0.5, 1],
-    size: [25, 41],
+    size: [22, 30],
+    pixelDensity: pixelRatio,
 }]);
 
 const markerDrawer = new MarkerDrawer(atlas, {

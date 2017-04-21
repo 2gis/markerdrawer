@@ -1,6 +1,6 @@
 import { Atlas } from './Atlas';
 import { CanvasRenderer } from './CanvasRenderer';
-import { Marker } from './types';
+import { Marker, Vec2 } from './types';
 
 export interface MarkerDrawerOptions {
     debugDrawing?: boolean;
@@ -87,11 +87,21 @@ export class MarkerDrawer extends L.Layer {
     }
 
     private _onClick = (ev: MouseEvent) => {
-        const markers = this._renderer.search(ev.clientX, ev.clientY);
+        const point = this._getMousePosition(ev);
+        const markers = this._renderer.search(point);
 
         if (markers.length) {
             ev.stopPropagation();
             this.fire('click', { markers });
         }
+    }
+
+    private _getMousePosition(ev: MouseEvent): Vec2 {
+        const container = this._renderer.container;
+        const rect = container.getBoundingClientRect();
+        return [
+            ev.clientX - rect.left - container.clientLeft,
+            ev.clientY - rect.top - container.clientTop,
+        ];
     }
 }

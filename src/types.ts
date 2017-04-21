@@ -12,7 +12,7 @@ export interface IRenderer {
     container: HTMLDivElement;
     onAddToMap(map: L.Map);
     clear();
-    search(x: number, y: number);
+    search(point: Vec2);
     update();
     setMarkers(markes: Marker[]);
     setDebugDrawing(value: boolean);

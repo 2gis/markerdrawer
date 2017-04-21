@@ -170,9 +170,9 @@ export class CanvasRenderer implements IRenderer {
         this._render();
     }
 
-    public search(px: number, py: number) {
-        const x = (px + this._bufferOffset[0]) * this._pixelRatio;
-        const y = (py + this._bufferOffset[1]) * this._pixelRatio;
+    public search(point: Vec2) {
+        const x = (point[0] + this._bufferOffset[0]) * this._pixelRatio;
+        const y = (point[1] + this._bufferOffset[1]) * this._pixelRatio;
         const res: MarkerData[] = this._currentFrame.tree.search({
             minX: x,
             minY: y,

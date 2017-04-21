@@ -244,6 +244,7 @@ export class CanvasRenderer implements IRenderer {
         const to = Math.min(from + this._markersPerFrame, this._markers.length);
 
         if (from === to) {
+            this._renderFinish();
             return;
         }
 
@@ -268,13 +269,17 @@ export class CanvasRenderer implements IRenderer {
         if (to !== this._markers.length) {
             this._requestAnimationFrameId = requestAnimationFrame(this._renderLoop);
         } else {
-            this._isRendering = false;
-            this._switchFrames();
+            this._renderFinish();
+        }
+    }
 
-            if (this._needUpdate) {
-                this._needUpdate = false;
-                this.update();
-            }
+    private _renderFinish() {
+        this._isRendering = false;
+        this._switchFrames();
+
+        if (this._needUpdate) {
+            this._needUpdate = false;
+            this.update();
         }
     }
 

@@ -41,12 +41,10 @@ hoveredPin.src = 'demo/markers/' + pixelRatio + '/pin_regular_hover.png';
 const atlas = new Atlas([{
     image: pin,
     anchor: [0.5, 1],
-    size: [22, 30],
     pixelDensity: pixelRatio,
 }, {
     image: hoveredPin,
     anchor: [0.5, 1],
-    size: [22, 30],
     pixelDensity: pixelRatio,
 }]);
 

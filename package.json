@@ -1,5 +1,5 @@
 {
-  "name": "markerdrawer",
+  "name": "@2gis/markerdrawer",
   "version": "0.0.1",
   "description": "Library for fast drawing a huge amount of markers",
   "author": {

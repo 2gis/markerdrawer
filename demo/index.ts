@@ -11,19 +11,32 @@ const map = window['map'] = DG.map('map', {
     geoclicker: true,
 });
 
-// tslint:disable-next-line
-map.on('click', () => console.log('map click'));
+const random = (() => {
+    let seed = 15;
 
-// tslint:disable-next-line
-map.poi.getMetaLayer().on('click', () => console.log('poi click'));
+    return () => {
+        seed = seed * 16807 % 2147483647;
+        return (seed - 1) / 2147483646;
+    };
+})();
+
+map.on('click', () => {
+    // tslint:disable-next-line
+    console.log('map click');
+});
+
+map.poi.getMetaLayer().on('click', () => {
+    // tslint:disable-next-line
+    console.log('poi click');
+});
 
 const centerLngLat: [number, number] = [82.897440725094, 54.980156831455];
 const markersData: Marker[] = [];
 for (let i = 0; i < 5000; i++) {
     markersData.push({
         position: [
-            centerLngLat[0] + (Math.random() - 0.5) * 0.25,
-            centerLngLat[1] + (Math.random() - 0.5) * 0.1,
+            centerLngLat[0] + (random() - 0.5) * 0.25,
+            centerLngLat[1] + (random() - 0.5) * 0.1,
         ],
     });
 }

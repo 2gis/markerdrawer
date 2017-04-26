@@ -14,7 +14,6 @@ import {
 
 interface MarkerData {
     index: number;
-    inBounds?: boolean;
     minX?: number;
     maxX?: number;
     minY?: number;
@@ -40,6 +39,7 @@ export class CanvasRenderer implements IRenderer {
 
     private _map: L.Map | undefined;
     private _size: Vec2;
+    private _mapSize: Vec2;
     private _zoom: number;
     private _bufferFactor: number;
     private _bufferOffset: Vec2;
@@ -133,7 +133,6 @@ export class CanvasRenderer implements IRenderer {
         if (!this._map) {
             return;
         }
-
         this._currentFrame.ctx.clearRect(0, 0, this._size[0] * this._pixelRatio, this._size[1] * this._pixelRatio);
         this._currentFrame.tree.clear();
         this._needUpdate = false;
@@ -158,13 +157,14 @@ export class CanvasRenderer implements IRenderer {
         const center = this._map.getCenter();
 
         lngLatToZoomPoint(this._origin, [center.lng, center.lat], this._zoom);
-        this._origin[0] = Math.round(this._origin[0] - this._size[0] / 2);
-        this._origin[1] = Math.round(this._origin[1] - this._size[1] / 2);
+        this._origin[0] -= this._mapSize[0] / 2;
+        this._origin[1] -= this._mapSize[1] / 2;
 
         const pixelOffset = this._map.containerPointToLayerPoint([
             -this._bufferOffset[0],
             -this._bufferOffset[1],
-        ]);
+        ]).round();
+
         L.DomUtil.setPosition(this._hiddenFrame.canvas, pixelOffset);
 
         this._render();
@@ -196,12 +196,18 @@ export class CanvasRenderer implements IRenderer {
         this._pixelRatio = window.devicePixelRatio;
 
         this._bufferOffset = [
-            Math.floor(mapSize.x * this._bufferFactor),
-            Math.floor(mapSize.y * this._bufferFactor),
+            Math.round(mapSize.x * this._bufferFactor),
+            Math.round(mapSize.y * this._bufferFactor),
         ];
+
         const size = this._size = [
             mapSize.x + this._bufferOffset[0] * 2,
             mapSize.y + this._bufferOffset[1] * 2,
+        ];
+
+        this._mapSize = [
+            mapSize.x,
+            mapSize.y,
         ];
 
         this._currentFrame.canvas.width = size[0] * this._pixelRatio;
@@ -297,6 +303,7 @@ export class CanvasRenderer implements IRenderer {
         const offset = this._vec;
         const zoom = this._zoom;
         const origin = this._origin;
+        const bufferOffset = this._bufferOffset;
 
         if (!atlas.image) {
             return;
@@ -312,27 +319,29 @@ export class CanvasRenderer implements IRenderer {
 
             const sprite = atlas.sprites[marker.iconIndex || 0];
             if (!sprite) {
-                data.inBounds = false;
                 continue;
             }
 
             const spriteScale = pixelRatio / sprite.pixelDensity;
 
             lngLatToZoomPoint(offset, marker.position, zoom);
-            offset[0] -= origin[0];
-            offset[1] -= origin[1];
+
+            // Do not change the sequence of rounding, it corresponds to the rounding in Leaflet
+            offset[0] = Math.round(offset[0]);
+            offset[1] = Math.round(offset[1]);
+
+            offset[0] = Math.round(offset[0] - origin[0]) + bufferOffset[0];
+            offset[1] = Math.round(offset[1] - origin[1]) + bufferOffset[1];
 
             offset[0] = Math.round(offset[0] * pixelRatio - sprite.size[0] * spriteScale * sprite.anchor[0]);
             offset[1] = Math.round(offset[1] * pixelRatio - sprite.size[1] * spriteScale * sprite.anchor[1]);
 
             if (offset[0] < 0 || offset[0] + sprite.size[0] * spriteScale > size[0] * pixelRatio ||
                 offset[1] < 0 || offset[1] + sprite.size[1] * spriteScale > size[1] * pixelRatio) {
-                data.inBounds = false;
                 continue;
             }
 
             // Prepare for rbush
-            data.inBounds = true;
             data.minX = offset[0];
             data.minY = offset[1];
             data.maxX = offset[0] + sprite.size[0] * spriteScale;

@@ -93,7 +93,8 @@ export class MarkerDrawer extends L.Layer {
     }
 
     private _getMousePosition(ev: MouseEvent): Vec2 {
-        const container = this._renderer.container;
+        const map = this._map as L.Map;
+        const container = map.getContainer();
         const rect = container.getBoundingClientRect();
         return [
             ev.clientX - rect.left - container.clientLeft,

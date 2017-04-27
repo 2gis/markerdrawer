@@ -4,20 +4,20 @@ import { Vec2 } from './types';
 /**
  * Icon with options for atlas
  */
-export type Icon = {
+export interface Icon {
     image: HTMLImageElement;
     anchor?: Vec2; // [anchor=[0.5, 0.5]]
     size?: Vec2; // [size=[image.width, image.height]] Size in a final atlas image
     // Может отличаться от исходного размера изображения.
     pixelDensity?: number; // Icon pixel density, 1 by default
-};
+}
 
-export type Sprite = {
+export interface Sprite {
     position: Vec2; // Position of icon in the image of atlas
     size: Vec2; // Size of icon in the atlas
     anchor: Vec2;
     pixelDensity: number; // Icon pixel density
-};
+}
 
 /**
  * The Atlas creates one image from a set of icons.

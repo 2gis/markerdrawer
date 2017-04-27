@@ -6,7 +6,7 @@ export interface Marker {
     position: LngLat;
     iconIndex?: number; // Индекс иконки маркера в атласе
     drawingOffsets?: number[];
-};
+}
 
 export interface IRenderer {
     container: HTMLDivElement;

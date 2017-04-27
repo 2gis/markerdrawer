@@ -49,7 +49,7 @@ export class MarkerDrawer extends L.Layer {
             return this;
         }
 
-        this._pane = this._map.getPane('overlayPane');
+        this._pane = this._map.getPane('overlayPane') as HTMLElement; // overlayPane always exist
 
         this._renderer.onAddToMap(this._map);
         this._renderer.container.addEventListener('click', this._onClick);

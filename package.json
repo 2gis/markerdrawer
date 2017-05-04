@@ -20,7 +20,7 @@
     "dev": "webpack-dev-server",
     "build": "NODE_ENV=production webpack",
     "builddemo": "NODE_ENV=demo webpack",
-    "lint": "tslint src/**/*.ts demo/**/*.ts"
+    "lint": "tslint 'src/**/*.ts' 'demo/**/*.ts'"
   },
   "devDependencies": {
     "2gis-maps": "^3.2.0",

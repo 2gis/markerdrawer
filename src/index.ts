@@ -4,4 +4,4 @@ export {
   Icon,
   Sprite,
 } from '../src/Atlas';
-export { Marker } from './types';
+export { Marker, MarkerDrawerMouseEvent } from './types';

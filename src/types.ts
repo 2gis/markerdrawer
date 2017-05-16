@@ -17,3 +17,8 @@ export interface IRenderer {
     setMarkers(markes: Marker[]);
     setDebugDrawing(value: boolean);
 }
+
+export interface MarkerDrawerMouseEvent {
+    markers: number[];
+    originalEvent: MouseEvent;
+}

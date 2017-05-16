@@ -73,6 +73,7 @@ export class CanvasRenderer implements IRenderer {
         this._needUpdate = false;
 
         this.container = document.createElement('div');
+        this.container.style.position = 'absolute';
         this._currentFrame = this._createFrame();
         this._hiddenFrame = this._createFrame();
     }

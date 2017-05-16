@@ -44,8 +44,9 @@ markersData.push({
     position: centerLngLat,
 });
 
-const pin = new Image();
 const pixelRatio = window.devicePixelRatio < 2 ? 1 : 2;
+
+const pin = new Image();
 pin.src = 'demo/markers/' + pixelRatio + '/pin_regular.png';
 
 const hoveredPin = new Image();
@@ -78,3 +79,48 @@ markerDrawer.on('click', (ev: any) => {
 });
 
 markerDrawer.addTo(map);
+
+// Second marker drawer layer
+const pinFav = new Image();
+pinFav.src = 'demo/markers/' + pixelRatio + '/pin_favorites.png';
+
+const hoveredPinFav = new Image();
+hoveredPinFav.src = 'demo/markers/' + pixelRatio + '/pin_favorites_active.png';
+
+const atlas2 = new Atlas([{
+    image: pinFav,
+    anchor: [0.5, 1],
+    pixelDensity: pixelRatio,
+}, {
+    image: hoveredPinFav,
+    anchor: [0.5, 1],
+    pixelDensity: pixelRatio,
+}]);
+
+const markerDrawer2 = new MarkerDrawer(atlas2, {
+    bufferFactor: 0.5,
+});
+
+const markersData2: Marker[] = [];
+for (let i = 0; i < 50; i++) {
+    markersData2.push({
+        position: [
+            centerLngLat[0] + (random() - 0.5) * 0.25,
+            centerLngLat[1] + (random() - 0.5) * 0.1,
+        ],
+    });
+}
+markerDrawer2.setMarkers(markersData2);
+
+markerDrawer2.addTo(map);
+
+markerDrawer2.on('click', (ev: any) => {
+    // tslint:disable-next-line
+    console.log('click', ev);
+
+    ev.markers.forEach((index) => {
+        markersData2[index].iconIndex = 1;
+    });
+
+    markerDrawer2.update();
+});

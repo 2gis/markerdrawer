@@ -1,6 +1,6 @@
 import { Atlas } from './Atlas';
 import { CanvasRenderer } from './CanvasRenderer';
-import { Marker, Vec2 } from './types';
+import { Marker, Vec2, MarkerDrawerMouseEvent } from './types';
 
 export interface MarkerDrawerOptions {
     debugDrawing?: boolean;
@@ -52,7 +52,7 @@ export class MarkerDrawer extends L.Layer {
         this._pane = this._map.getPane('overlayPane') as HTMLElement; // overlayPane always exist
 
         this._renderer.onAddToMap(this._map);
-        this._renderer.container.addEventListener('click', this._onClick);
+        this._pane.addEventListener('click', this._onClick);
         this._pane.appendChild(this._renderer.container);
         this._atlas.whenReady()
             .then(() => {
@@ -88,7 +88,11 @@ export class MarkerDrawer extends L.Layer {
 
         if (markers.length) {
             ev.stopPropagation();
-            this.fire('click', { markers });
+            const event: MarkerDrawerMouseEvent = {
+                originalEvent: ev,
+                markers,
+            };
+            this.fire('click', event);
         }
     }
 

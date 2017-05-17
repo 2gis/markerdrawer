@@ -5,6 +5,7 @@ import { Marker, Vec2, MarkerDrawerMouseEvent } from './types';
 export interface MarkerDrawerOptions {
     debugDrawing?: boolean;
     bufferFactor?: number;
+    zIndex?: number;
 }
 
 /**
@@ -26,6 +27,7 @@ export class MarkerDrawer extends L.Layer {
             this._atlas,
             options.debugDrawing || false,
             options.bufferFactor !== undefined ? options.bufferFactor : 0.5,
+            options.zIndex,
         );
     }
 

@@ -58,7 +58,7 @@ export class CanvasRenderer implements IRenderer {
 
     private _vec: Vec2;
 
-    constructor(atlas: Atlas, debugDrawing: boolean, bufferFactor: number) {
+    constructor(atlas: Atlas, debugDrawing: boolean, bufferFactor: number, zIndex?: number) {
         this._atlas = atlas;
         this._markers = [];
         this._markersData = [];
@@ -73,6 +73,9 @@ export class CanvasRenderer implements IRenderer {
         this._needUpdate = false;
 
         this.container = document.createElement('div');
+        if (zIndex) {
+            this.container.style['z-index'] = zIndex;
+        }
         this.container.style.position = 'absolute';
         this._currentFrame = this._createFrame();
         this._hiddenFrame = this._createFrame();

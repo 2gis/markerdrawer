@@ -75,7 +75,7 @@ export class MarkerDrawer extends L.Layer {
     public onRemove() {
         this._pane.removeChild(this._renderer.container);
         this._renderer.onRemoveFromMap();
-        this._renderer.container.removeEventListener('click', this._onClick);
+        this._pane.removeEventListener('click', this._onClick);
 
         return this;
     }

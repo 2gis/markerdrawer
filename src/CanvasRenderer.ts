@@ -137,6 +137,7 @@ export class CanvasRenderer implements IRenderer {
         if (!this._map) {
             return;
         }
+        this._currentFrame.canvas.style.display = 'none';
         this._currentFrame.ctx.clearRect(0, 0, this._size[0] * this._pixelRatio, this._size[1] * this._pixelRatio);
         this._currentFrame.tree.clear();
         this._needUpdate = false;

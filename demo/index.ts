@@ -52,12 +52,19 @@ pin.src = 'demo/markers/' + pixelRatio + '/pin_regular.png';
 const hoveredPin = new Image();
 hoveredPin.src = 'demo/markers/' + pixelRatio + '/pin_regular_hover.png';
 
+const activePin = new Image();
+activePin.src = 'demo/markers/' + pixelRatio + '/pin_regular_active.png';
+
 const atlas = new Atlas([{
     image: pin,
     anchor: [0.5, 1],
     pixelDensity: pixelRatio,
 }, {
     image: hoveredPin,
+    anchor: [0.5, 1],
+    pixelDensity: pixelRatio,
+}, {
+    image: activePin,
     anchor: [0.5, 1],
     pixelDensity: pixelRatio,
 }]);
@@ -68,14 +75,30 @@ const markerDrawer = new MarkerDrawer(atlas, {
 
 markerDrawer.setMarkers(markersData);
 
-markerDrawer.on('click', (ev: any) => {
-    // tslint:disable-next-line
-    console.log('click', ev);
-
-    ev.markers.forEach((index) => {
-        markersData[index].iconIndex = 1;
-    });
+markerDrawer.on('mousedown', (ev: any) => {
+    markersData[ev.marker].iconIndex = 2;
     markerDrawer.update();
+});
+
+markerDrawer.on('mouseup', (ev: any) => {
+    markersData[ev.marker].iconIndex = 1;
+    markerDrawer.update();
+});
+
+markerDrawer.on('mouseover', (ev: any) => {
+    if (!markersData[ev.marker].iconIndex) {
+        markersData[ev.marker].iconIndex = 1;
+        markerDrawer.update();
+    }
+    map.getContainer().style['cursor'] = 'pointer';
+});
+
+markerDrawer.on('mouseout', (ev: any) => {
+    if (markersData[ev.marker].iconIndex === 1) {
+        markersData[ev.marker].iconIndex = 0;
+        markerDrawer.update();
+    }
+    map.getContainer().style['cursor'] = 'default';
 });
 
 markerDrawer.addTo(map);
@@ -118,9 +141,7 @@ markerDrawer2.on('click', (ev: any) => {
     // tslint:disable-next-line
     console.log('click', ev);
 
-    ev.markers.forEach((index) => {
-        markersData2[index].iconIndex = 1;
-    });
+    markersData2[ev.marker].iconIndex = 1;
 
     markerDrawer2.update();
 });

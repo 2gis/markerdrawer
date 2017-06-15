@@ -19,6 +19,6 @@ export interface IRenderer {
 }
 
 export interface MarkerDrawerMouseEvent {
-    markers: number[];
+    marker: number;
     originalEvent: MouseEvent;
 }

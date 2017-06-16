@@ -58,7 +58,7 @@ export class MarkerDrawer extends L.Layer {
         this._renderer.onAddToMap(this._map);
         this._pane.addEventListener('click', this._onClick);
         this._pane.addEventListener('mousemove', this._onMouseMove);
-        this._pane.addEventListener('mouseout', this._onMouseOut);
+        this._pane.addEventListener('mouseleave', this._onMouseLeave);
         this._pane.addEventListener('mousedown', this._onMouseDown);
         this._pane.addEventListener('mouseup', this._onMouseUp);
         this._pane.appendChild(this._renderer.container);
@@ -83,7 +83,7 @@ export class MarkerDrawer extends L.Layer {
         this._renderer.onRemoveFromMap();
         this._pane.removeEventListener('click', this._onClick);
         this._pane.removeEventListener('mousemove', this._onMouseMove);
-        this._pane.removeEventListener('mouseout', this._onMouseOut);
+        this._pane.removeEventListener('mouseleave', this._onMouseLeave);
         this._pane.removeEventListener('mousedown', this._onMouseDown);
         this._pane.removeEventListener('mouseup', this._onMouseUp);
 
@@ -108,7 +108,7 @@ export class MarkerDrawer extends L.Layer {
         }
     }
 
-    private _onMouseOut = (ev: MouseEvent) => {
+    private _onMouseLeave = (ev: MouseEvent) => {
         if (this._hoveredMarker !== undefined) {
             const event: MarkerDrawerMouseEvent = {
                 originalEvent: ev,

@@ -69,10 +69,10 @@ const atlas = new Atlas([{
     pixelDensity: pixelRatio,
 }]);
 
-const markerDrawer = new MarkerDrawer(atlas, {
+const markerDrawer = new MarkerDrawer({
     bufferFactor: 0.5,
 });
-
+markerDrawer.setAtlas(atlas);
 markerDrawer.setMarkers(markersData);
 
 markerDrawer.on('mousedown', (ev: any) => {
@@ -120,9 +120,10 @@ const atlas2 = new Atlas([{
     pixelDensity: pixelRatio,
 }]);
 
-const markerDrawer2 = new MarkerDrawer(atlas2, {
+const markerDrawer2 = new MarkerDrawer({
     bufferFactor: 0.5,
 });
+markerDrawer2.setAtlas(atlas2);
 
 const markersData2: Marker[] = [];
 for (let i = 0; i < 50; i++) {

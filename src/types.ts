@@ -1,4 +1,6 @@
-export type Vec2 = [number, number] | Float64Array;
+import { Atlas } from './Atlas';
+
+export type Vec2 = [number, number] | Float64Array | number[];
 
 export type LngLat = [number, number];
 
@@ -15,6 +17,7 @@ export interface IRenderer {
     search(point: Vec2);
     update();
     setMarkers(markes: Marker[]);
+    setAtlas(atlas: Atlas);
     setDebugDrawing(value: boolean);
 }
 

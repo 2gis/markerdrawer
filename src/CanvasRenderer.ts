@@ -58,14 +58,13 @@ export class CanvasRenderer implements IRenderer {
 
     private _vec: Vec2;
 
-    constructor(atlas: Atlas, debugDrawing: boolean, bufferFactor: number, zIndex?: number) {
-        this._atlas = atlas;
+    constructor(debugDrawing: boolean, bufferFactor: number, zIndex?: number) {
         this._markers = [];
         this._markersData = [];
         this._isZooming = false;
         this._debugDrawing = debugDrawing;
         this._bufferFactor = bufferFactor;
-        this._markersPerFrame = 5000;
+        this._markersPerFrame = 1000;
         this._timePerFrame = 10;
         this._origin = vec2create();
         this._vec = vec2create();
@@ -79,6 +78,16 @@ export class CanvasRenderer implements IRenderer {
         this.container.style.position = 'absolute';
         this._currentFrame = this._createFrame();
         this._hiddenFrame = this._createFrame();
+    }
+
+    public setAtlas(atlas: Atlas) {
+        if (atlas) {
+            this._atlas = atlas;
+            this._atlas.whenReady()
+                .then(() => {
+                    this.update();
+                });
+        }
     }
 
     public setMarkers(markers: Marker[]) {

@@ -13,24 +13,25 @@ export interface MarkerDrawerOptions {
  */
 export class MarkerDrawer extends L.Layer {
     private _markers: Marker[];
-    private _atlas: Atlas;
     private _map?: L.Map;
     private _renderer: CanvasRenderer;
     private _pane: HTMLElement;
     private _hoveredMarker?: number;
     private _clickedMarker?: number;
 
-    constructor(atlas: Atlas, options: MarkerDrawerOptions = {}) {
+    constructor(options: MarkerDrawerOptions = {}) {
         super();
 
-        this._atlas = atlas;
         this._markers = [];
         this._renderer = new CanvasRenderer(
-            this._atlas,
             options.debugDrawing || false,
             options.bufferFactor !== undefined ? options.bufferFactor : 0.5,
             options.zIndex,
         );
+    }
+
+    public setAtlas(atlas: Atlas) {
+        this._renderer.setAtlas(atlas);
     }
 
     public setMarkers(markers: Marker[]) {
@@ -62,10 +63,6 @@ export class MarkerDrawer extends L.Layer {
         this._pane.addEventListener('mousedown', this._onMouseDown);
         this._pane.addEventListener('mouseup', this._onMouseUp);
         this._pane.appendChild(this._renderer.container);
-        this._atlas.whenReady()
-            .then(() => {
-                this._renderer.update();
-            });
 
         return this;
     }

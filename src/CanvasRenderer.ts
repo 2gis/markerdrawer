@@ -42,6 +42,7 @@ export class CanvasRenderer implements IRenderer {
     private _mapSize: Vec2;
     private _zoom: number;
     private _bufferFactor: number;
+    private _updateOnMoveEnd: boolean;
     private _bufferOffset: Vec2;
 
     private _origin: Vec2;
@@ -58,12 +59,13 @@ export class CanvasRenderer implements IRenderer {
 
     private _vec: Vec2;
 
-    constructor(debugDrawing: boolean, bufferFactor: number, zIndex?: number) {
+    constructor(debugDrawing: boolean, bufferFactor: number, zIndex?: number, updateOnMoveEnd: boolean = true) {
         this._markers = [];
         this._markersData = [];
         this._isZooming = false;
         this._debugDrawing = debugDrawing;
         this._bufferFactor = bufferFactor;
+        this._updateOnMoveEnd = updateOnMoveEnd;
         this._markersPerFrame = 1000;
         this._timePerFrame = 10;
         this._origin = vec2create();
@@ -93,10 +95,7 @@ export class CanvasRenderer implements IRenderer {
     public setMarkers(markers: Marker[]) {
         this._needUpdate = false;
 
-        if (this._isRendering) {
-            cancelAnimationFrame(this._requestAnimationFrameId);
-            this._isRendering = false;
-        }
+        this._stopRendering();
 
         // Set ordered indices
         if (markers.length > this._markersData.length) {
@@ -118,6 +117,7 @@ export class CanvasRenderer implements IRenderer {
         this._map = map;
         map.on({
             viewreset: this.update,
+            movestart: this._onMoveStart,
             moveend: this._onMoveEnd,
             zoomstart: this._onZoomStart,
             resize: this._onResize,
@@ -132,6 +132,7 @@ export class CanvasRenderer implements IRenderer {
 
         this._map.off({
             viewreset: this.update,
+            movestart: this._onMoveStart,
             moveend: this._onMoveEnd,
             zoomstart: this._onZoomStart,
             resize: this._onResize,
@@ -201,6 +202,13 @@ export class CanvasRenderer implements IRenderer {
         this._debugDrawing = value;
     }
 
+    private _stopRendering() {
+        if (this._isRendering) {
+            cancelAnimationFrame(this._requestAnimationFrameId);
+            this._isRendering = false;
+        }
+    }
+
     private _onResize = () => {
         if (!this._map) {
             return;
@@ -242,7 +250,13 @@ export class CanvasRenderer implements IRenderer {
 
     private _onMoveEnd = () => {
         this._isZooming = false;
-        this.update();
+        if (this._updateOnMoveEnd) {
+            this.update();
+        }
+    }
+
+    private _onMoveStart = () => {
+        this._stopRendering();
     }
 
     private _render() {

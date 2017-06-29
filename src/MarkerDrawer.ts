@@ -6,6 +6,7 @@ export interface MarkerDrawerOptions {
     debugDrawing?: boolean;
     bufferFactor?: number;
     zIndex?: number;
+    updateOnMoveEnd?: boolean;
 }
 
 /**
@@ -27,6 +28,7 @@ export class MarkerDrawer extends L.Layer {
             options.debugDrawing || false,
             options.bufferFactor !== undefined ? options.bufferFactor : 0.5,
             options.zIndex,
+            options.updateOnMoveEnd,
         );
     }
 

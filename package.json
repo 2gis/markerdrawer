@@ -1,6 +1,6 @@
 {
   "name": "@2gis/markerdrawer",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Library for fast drawing a huge amount of markers",
   "author": {
     "name": "Mstislav Zhivodkov",

@@ -1,11 +1,10 @@
 import {
-  LngLat,
-  Vec2,
+    LngLat,
+    Vec2,
 } from './types';
 
 const R = 6378137;
 const MAX_LATITUDE = 85.0511287798;
-
 export function vec2create(): Vec2 {
     return new Float64Array(2);
 }
@@ -32,4 +31,6 @@ function latLngToMapPoint(out: Vec2, lngLat: LngLat) {
     out[1] = R * Math.log((1 + sin) / (1 - sin)) / 2;
 }
 
-export const now = window.performance ? performance.now.bind(performance) : Date.now.bind(Date);
+export const now = window.performance && window.performance.now
+    ? performance.now.bind(performance)
+    : Date.now.bind(Date);

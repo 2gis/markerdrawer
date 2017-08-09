@@ -10,6 +10,7 @@ export interface Icon {
     size?: Vec2; // [size=[image.width, image.height]] Size in a final atlas image
     // Может отличаться от исходного размера изображения.
     pixelDensity?: number; // Icon pixel density, 1 by default
+    interactiveMargin?: number;
 }
 
 export interface Sprite {
@@ -17,6 +18,7 @@ export interface Sprite {
     size: Vec2; // Size of icon in the atlas
     anchor: Vec2;
     pixelDensity: number; // Icon pixel density
+    interactiveMargin: number;
 }
 
 /**
@@ -71,6 +73,7 @@ export class Atlas {
                 anchor: icon.anchor || [0.5, 0.5],
                 size,
                 imageSize,
+                interactiveMargin: icon.interactiveMargin || 0,
                 pixelDensity: icon.pixelDensity || 1,
             };
         });
@@ -83,6 +86,7 @@ export class Atlas {
             position: [icon.x + margin, icon.y + margin],
             size: icon.size,
             anchor: icon.anchor,
+            interactiveMargin: icon.interactiveMargin,
             pixelDensity: icon.pixelDensity,
         }));
 

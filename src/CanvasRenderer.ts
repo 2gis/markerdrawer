@@ -369,11 +369,13 @@ export class CanvasRenderer implements IRenderer {
                 continue;
             }
 
+            const interactiveMargin = sprite.interactiveMargin * spriteScale;
+
             // Prepare for rbush
-            data.minX = offset[0];
-            data.minY = offset[1];
-            data.maxX = offset[0] + sprite.size[0] * spriteScale;
-            data.maxY = offset[1] + sprite.size[1] * spriteScale;
+            data.minX = offset[0] - interactiveMargin;
+            data.minY = offset[1] - interactiveMargin;
+            data.maxX = offset[0] + sprite.size[0] * spriteScale + interactiveMargin;
+            data.maxY = offset[1] + sprite.size[1] * spriteScale + interactiveMargin;
             visibleMarkers.push(data);
 
             ctx.drawImage(

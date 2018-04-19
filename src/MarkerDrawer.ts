@@ -1,3 +1,4 @@
+import * as L from 'leaflet';
 import { Atlas } from './Atlas';
 import { CanvasRenderer } from './CanvasRenderer';
 import { Marker, Vec2, MarkerDrawerMouseEvent } from './types';
@@ -13,8 +14,6 @@ export interface MarkerDrawerOptions {
  * This class helps to draw fast a huge amount of markers
  */
 export class MarkerDrawer extends L.Layer {
-    private _markers: Marker[];
-    private _map?: L.Map;
     private _renderer: CanvasRenderer;
     private _pane: HTMLElement;
     private _hoveredMarker?: number;
@@ -23,7 +22,6 @@ export class MarkerDrawer extends L.Layer {
     constructor(options: MarkerDrawerOptions = {}) {
         super();
 
-        this._markers = [];
         this._renderer = new CanvasRenderer(
             options.debugDrawing || false,
             options.bufferFactor !== undefined ? options.bufferFactor : 0.5,
@@ -37,7 +35,6 @@ export class MarkerDrawer extends L.Layer {
     }
 
     public setMarkers(markers: Marker[]) {
-        this._markers = markers;
         this._renderer.setMarkers(markers);
     }
 

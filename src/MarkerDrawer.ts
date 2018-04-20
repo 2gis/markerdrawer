@@ -1,4 +1,3 @@
-import * as L from 'leaflet';
 import { Atlas } from './Atlas';
 import { CanvasRenderer } from './CanvasRenderer';
 import { Marker, Vec2, MarkerDrawerMouseEvent } from './types';

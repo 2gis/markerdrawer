@@ -1,6 +1,5 @@
 import { Atlas } from './Atlas';
 import * as rbush from 'rbush';
-import * as L from 'leaflet';
 import {
     Marker,
     IRenderer,

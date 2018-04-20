@@ -1,5 +1,4 @@
 import { Atlas } from './Atlas';
-import * as L from 'leaflet';
 
 export type Vec2 = [number, number] | Float64Array | number[];
 

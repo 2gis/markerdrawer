@@ -2,7 +2,7 @@ import { Atlas } from './Atlas';
 
 export type Vec2 = [number, number] | Float64Array | number[];
 
-export type LngLat = [number, number];
+export type LngLat = number[];
 
 export interface Marker {
     position: LngLat;

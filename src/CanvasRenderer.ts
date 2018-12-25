@@ -66,7 +66,7 @@ export class CanvasRenderer implements IRenderer {
         this._debugDrawing = debugDrawing;
         this._bufferFactor = bufferFactor;
         this._updateOnMoveEnd = updateOnMoveEnd;
-        this._markersPerFrame = 1000;
+        this._markersPerFrame = 500;
         this._timePerFrame = 10;
         this._origin = vec2create();
         this._vec = vec2create();
@@ -215,7 +215,7 @@ export class CanvasRenderer implements IRenderer {
         }
 
         const mapSize = this._map.getSize();
-        this._pixelRatio = window.devicePixelRatio;
+        this._pixelRatio = Math.min(Math.floor(window.devicePixelRatio), 3);
 
         this._bufferOffset = [
             Math.round(mapSize.x * this._bufferFactor),
@@ -294,8 +294,9 @@ export class CanvasRenderer implements IRenderer {
         const timeDelta = now() - startTime;
         const timePerMarker = timeDelta / (to - from);
         if (timePerMarker !== 0) {
+            const currentMarkersPerFrame = this._timePerFrame / timePerMarker;
             this._markersPerFrame = Math.max(
-                Math.floor((this._markersPerFrame + this._timePerFrame / timePerMarker) / 2),
+                this._markersPerFrame + Math.floor((currentMarkersPerFrame - this._markersPerFrame) / 5),
                 100,
             );
         }

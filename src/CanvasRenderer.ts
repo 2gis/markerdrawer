@@ -26,7 +26,7 @@ interface Frame {
     tree: any;
 }
 
-export class CanvasRenderer implements IRenderer {
+export class CanvasRenderer extends L.Evented implements IRenderer {
     public container: HTMLDivElement;
 
     private _atlas: Atlas;
@@ -60,6 +60,8 @@ export class CanvasRenderer implements IRenderer {
     private _vec: Vec2;
 
     constructor(debugDrawing: boolean, bufferFactor: number, zIndex?: number, updateOnMoveEnd: boolean = true) {
+        super();
+
         this._markers = [];
         this._markersData = [];
         this._isZooming = false;
@@ -256,6 +258,7 @@ export class CanvasRenderer implements IRenderer {
     }
 
     private _onMoveStart = () => {
+        this.fire('invalidtree');
         this._stopRendering();
     }
 
@@ -315,6 +318,8 @@ export class CanvasRenderer implements IRenderer {
         if (this._needUpdate) {
             this._needUpdate = false;
             this.update();
+        } else {
+            this.fire('validtree');
         }
     }
 

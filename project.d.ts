@@ -29,6 +29,11 @@ declare namespace L {
         containerPointToLayerPoint(point: [number, number]): Point;
     }
 
+    class Evented {
+        fire(type: string, data?: any, propagate?: boolean): this;
+        on(type: string, fn: Function, context?: any): this;
+    }
+
     namespace DomUtil {
         function setPosition(el: HTMLElement, position: Point): void;
     }

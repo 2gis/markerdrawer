@@ -74,6 +74,7 @@ export class MarkerDrawer extends L.Layer {
 
         this._renderer.onAddToMap(this._map);
         this._pane.addEventListener('click', this._onClick);
+        this._pane.addEventListener('contextmenu', this._onContextmenu);
         this._pane.addEventListener('mousemove', this._onMouseMove);
         this._pane.addEventListener('mouseleave', this._onMouseLeave);
         this._pane.addEventListener('mousedown', this._onMouseDown);
@@ -101,6 +102,7 @@ export class MarkerDrawer extends L.Layer {
         this._pane.removeChild(this._renderer.container);
         this._renderer.onRemoveFromMap();
         this._pane.removeEventListener('click', this._onClick);
+        this._pane.removeEventListener('contextmenu', this._onContextmenu);
         this._pane.removeEventListener('mousemove', this._onMouseMove);
         this._pane.removeEventListener('mouseleave', this._onMouseLeave);
         this._pane.removeEventListener('mousedown', this._onMouseDown);
@@ -119,7 +121,7 @@ export class MarkerDrawer extends L.Layer {
         this._renderer.setDebugDrawing(value);
     }
 
-    private _onClick = (ev: MouseEvent) => {
+    private _handleEvent = (type: 'click' | 'contextmenu', ev: MouseEvent) => {
         if (!this._isValidData) {
             return;
         }
@@ -133,9 +135,13 @@ export class MarkerDrawer extends L.Layer {
                 originalEvent: ev,
                 marker: Math.max(...markers),
             };
-            this.fire('click', event);
+            this.fire(type, event);
         }
     }
+
+    private _onClick = (ev: MouseEvent) => this._handleEvent('click', ev);
+
+    private _onContextmenu = (ev: MouseEvent) => this._handleEvent('contextmenu', ev);
 
     private _onMouseLeave = (ev: MouseEvent) => {
         /**

@@ -1,0 +1,38 @@
+{
+  "name": "@2gis/markerdrawer",
+  "version": "1.1.0",
+  "description": "Library for fast drawing a huge amount of markers",
+  "author": {
+    "name": "Mstislav Zhivodkov",
+    "email": "stevemyz@gmail.com",
+    "url": "https://trufi.github.io/"
+  },
+  "license": "BSD-2-Clause",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:2gis/markerdrawer.git"
+  },
+  "main": "dist/markerdrawer.js",
+  "typings": "dist/src/index",
+  "scripts": {
+    "start": "npm run dev",
+    "test": "npm run lint",
+    "dev": "webpack-dev-server",
+    "build": "NODE_ENV=production webpack",
+    "builddemo": "NODE_ENV=demo webpack",
+    "lint": "tslint 'src/**/*.ts' 'demo/**/*.ts'"
+  },
+  "devDependencies": {
+    "2gis-maps": "^3.3.5",
+    "@types/rbush": "^2.0.2",
+    "bin-pack": "^1.0.2",
+    "rbush": "^2.0.1",
+    "ts-loader": "^2.3.1",
+    "tslib": "^1.7.1",
+    "tslint": "^5.5.0",
+    "tslint-eslint-rules": "^4.1.1",
+    "typescript": "^2.4.2",
+    "webpack": "^3.3.0",
+    "webpack-dev-server": "^2.5.1"
+  }
+}
